@@ -1,0 +1,16 @@
+Configuring bytestring-conversion-0.3.1...
+Warning: 'license: MPL-2.0' is not a recognised license. The known licenses
+are: GPL, GPL-2, GPL-3, LGPL, LGPL-2.1, LGPL-3, AGPL, AGPL-3, BSD3, MIT,
+Apache, Apache-2.0, PublicDomain, AllRightsReserved, OtherLicense
+Building bytestring-conversion-0.3.1...
+Preprocessing library bytestring-conversion-0.3.1...
+[1 of 4] Compiling Data.ByteString.Conversion.Internal ( src/Data/ByteString/Conversion/Internal.hs, dist/dist-sandbox-8f438e40/build/Data/ByteString/Conversion/Internal.o )
+[2 of 4] Compiling Data.ByteString.Conversion.From ( src/Data/ByteString/Conversion/From.hs, dist/dist-sandbox-8f438e40/build/Data/ByteString/Conversion/From.o )
+[3 of 4] Compiling Data.ByteString.Conversion.To ( src/Data/ByteString/Conversion/To.hs, dist/dist-sandbox-8f438e40/build/Data/ByteString/Conversion/To.o )
+[4 of 4] Compiling Data.ByteString.Conversion ( src/Data/ByteString/Conversion.hs, dist/dist-sandbox-8f438e40/build/Data/ByteString/Conversion.o )
+In-place registering bytestring-conversion-0.3.1...
+Creating package registration file:
+/tmp/pkgConf-bytestring-conversion-0.313760352171282648518.1
+Installing library in
+/home/boss/CODE/haskell/4400/chat/servantTUTO/servant-examples-0.4.4.7/.cabal-sandbox/lib/x86_64-linux-ghc-7.8.4/bytestring-conversion-0.3.1
+Registering bytestring-conversion-0.3.1...

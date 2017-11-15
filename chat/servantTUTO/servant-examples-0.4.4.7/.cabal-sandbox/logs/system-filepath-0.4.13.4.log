@@ -1,0 +1,25 @@
+[1 of 1] Compiling Main             ( /tmp/cabal-tmp-32543/system-filepath-0.4.13.4/dist/dist-sandbox-8f438e40/setup/setup.hs, /tmp/cabal-tmp-32543/system-filepath-0.4.13.4/dist/dist-sandbox-8f438e40/setup/Main.o )
+Linking /tmp/cabal-tmp-32543/system-filepath-0.4.13.4/dist/dist-sandbox-8f438e40/setup/setup ...
+Configuring system-filepath-0.4.13.4...
+Building system-filepath-0.4.13.4...
+Preprocessing library system-filepath-0.4.13.4...
+[1 of 4] Compiling Filesystem.Path.Internal ( lib/Filesystem/Path/Internal.hs, dist/dist-sandbox-8f438e40/build/Filesystem/Path/Internal.o )
+
+lib/Filesystem/Path/Internal.hs:17:1: Warning:
+    The qualified import of ‘Control.Exception’ is redundant
+      except perhaps to import instances from ‘Control.Exception’
+    To import instances alone, use: import Control.Exception()
+
+lib/Filesystem/Path/Internal.hs:26:1: Warning:
+    The import of ‘Data.Text.Encoding.Error’ is redundant
+      except perhaps to import instances from ‘Data.Text.Encoding.Error’
+    To import instances alone, use: import Data.Text.Encoding.Error()
+[2 of 4] Compiling Filesystem.Path  ( lib/Filesystem/Path.hs, dist/dist-sandbox-8f438e40/build/Filesystem/Path.o )
+[3 of 4] Compiling Filesystem.Path.Rules ( lib/Filesystem/Path/Rules.hs, dist/dist-sandbox-8f438e40/build/Filesystem/Path/Rules.o )
+[4 of 4] Compiling Filesystem.Path.CurrentOS ( lib/Filesystem/Path/CurrentOS.hs, dist/dist-sandbox-8f438e40/build/Filesystem/Path/CurrentOS.o )
+In-place registering system-filepath-0.4.13.4...
+Creating package registration file:
+/tmp/pkgConf-system-filepath-0.4.1318587218601548348142.4
+Installing library in
+/home/boss/CODE/haskell/4400/chat/servantTUTO/servant-examples-0.4.4.7/.cabal-sandbox/lib/x86_64-linux-ghc-7.8.4/system-filepath-0.4.13.4
+Registering system-filepath-0.4.13.4...

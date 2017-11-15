@@ -1,0 +1,16 @@
+Configuring psqueues-0.2.4.0...
+Building psqueues-0.2.4.0...
+Preprocessing library psqueues-0.2.4.0...
+[1 of 7] Compiling Data.BitUtil     ( src/Data/BitUtil.hs, dist/dist-sandbox-8f438e40/build/Data/BitUtil.o )
+[2 of 7] Compiling Data.OrdPSQ.Internal ( src/Data/OrdPSQ/Internal.hs, dist/dist-sandbox-8f438e40/build/Data/OrdPSQ/Internal.o )
+[3 of 7] Compiling Data.OrdPSQ      ( src/Data/OrdPSQ.hs, dist/dist-sandbox-8f438e40/build/Data/OrdPSQ.o )
+[4 of 7] Compiling Data.IntPSQ.Internal ( src/Data/IntPSQ/Internal.hs, dist/dist-sandbox-8f438e40/build/Data/IntPSQ/Internal.o )
+[5 of 7] Compiling Data.IntPSQ      ( src/Data/IntPSQ.hs, dist/dist-sandbox-8f438e40/build/Data/IntPSQ.o )
+[6 of 7] Compiling Data.HashPSQ.Internal ( src/Data/HashPSQ/Internal.hs, dist/dist-sandbox-8f438e40/build/Data/HashPSQ/Internal.o )
+[7 of 7] Compiling Data.HashPSQ     ( src/Data/HashPSQ.hs, dist/dist-sandbox-8f438e40/build/Data/HashPSQ.o )
+In-place registering psqueues-0.2.4.0...
+Creating package registration file:
+/tmp/pkgConf-psqueues-0.2.4150517567212251746.0
+Installing library in
+/home/boss/CODE/haskell/4400/chat/servantTUTO/servant-examples-0.4.4.7/.cabal-sandbox/lib/x86_64-linux-ghc-7.8.4/psqueues-0.2.4.0
+Registering psqueues-0.2.4.0...

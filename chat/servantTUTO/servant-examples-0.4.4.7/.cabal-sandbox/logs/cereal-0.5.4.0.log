@@ -1,0 +1,18 @@
+Configuring cereal-0.5.4.0...
+Building cereal-0.5.4.0...
+Preprocessing library cereal-0.5.4.0...
+[1 of 4] Compiling Data.Serialize.Put ( src/Data/Serialize/Put.hs, dist/dist-sandbox-8f438e40/build/Data/Serialize/Put.o )
+
+src/Data/Serialize/Put.hs:115:1: Warning:
+    The import of ‘Data.Foldable’ is redundant
+      except perhaps to import instances from ‘Data.Foldable’
+    To import instances alone, use: import Data.Foldable()
+[2 of 4] Compiling Data.Serialize.Get ( src/Data/Serialize/Get.hs, dist/dist-sandbox-8f438e40/build/Data/Serialize/Get.o )
+[3 of 4] Compiling Data.Serialize.IEEE754 ( src/Data/Serialize/IEEE754.hs, dist/dist-sandbox-8f438e40/build/Data/Serialize/IEEE754.o )
+[4 of 4] Compiling Data.Serialize   ( src/Data/Serialize.hs, dist/dist-sandbox-8f438e40/build/Data/Serialize.o )
+In-place registering cereal-0.5.4.0...
+Creating package registration file:
+/tmp/pkgConf-cereal-0.5.416425488991501252996.0
+Installing library in
+/home/boss/CODE/haskell/4400/chat/servantTUTO/servant-examples-0.4.4.7/.cabal-sandbox/lib/x86_64-linux-ghc-7.8.4/cereal-0.5.4.0
+Registering cereal-0.5.4.0...

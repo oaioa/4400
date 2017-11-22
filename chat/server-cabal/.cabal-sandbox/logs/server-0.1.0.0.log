@@ -1,9 +1,0 @@
-Configuring server-0.1.0.0...
-Warning: The 'license-file' field refers to the file 'LICENSE' which does not
-exist.
-Building server-0.1.0.0...
-Preprocessing executable 'server' for server-0.1.0.0...
-
-Main.hs:3:8:
-    Could not find module ‘Network.Socket’
-    Use -v to see a list of the files searched for.

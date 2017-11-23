@@ -62,7 +62,7 @@ runConn (sock, _) chan msgNum = do
     handle (\(SomeException _) -> return ()) $ fix $ \loop -> do
         line <- fmap init (hGetLine hdl)
         case stripPrefix "HELO" line of
-            Just restOfString -> hPutStrLn hdl("HELO "++restOfString++"\nIP:"++show ip++"\nPort:"++show port++"\nStudentID:17342676\n") >>loop
+            Just restOfString -> hPutStrLn hdl("HELO ") -- ++restOfString++"\nIP:"++show ip++"\nPort:"++show port++"\nStudentID:17342676\n") >>loop
             Nothing -> return () 
         case stripPrefix "JOIN" line of
             Just restOfString -> hPutStrLn hdl("Joined !")>>loop

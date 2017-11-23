@@ -8,6 +8,7 @@ import Control.Concurrent
 import Control.Monad (when)
 import Control.Monad.Fix (fix)
 import Control.Monad (liftM)
+import Data.List
 
 ip =iNADDR_ANY
 port = 4242
@@ -49,7 +50,6 @@ runConn (sock, _) chan msgNum = do
  
     
     hello <- fmap init (hGetLine hdl)
-    hPutStrLn hdl ("HELO text\nIP:"++show ip++"\nPort:"++show port++"\nStudentID:17342676\n")
     
     hPutStrLn hdl "Hi, what's your name?"
     name <- fmap init (hGetLine hdl)
@@ -66,12 +66,16 @@ runConn (sock, _) chan msgNum = do
  
     handle (\(SomeException _) -> return ()) $ fix $ \loop -> do
         line <- fmap init (hGetLine hdl)
+        case stripPrefix "HELO" line of
+            Just restOfString -> hPutStrLn hdl("HELO "++restOfString++"\nIP:"++show ip++"\nPort:"++show port++"\nStudentID:17342676\n")
+            Nothing -> return () 
         case line of
              -- If an exception is caught, send a message and break the loop
              "KILL_SERVICE" -> hPutStrLn hdl "Bye!"
+             "kill" -> hPutStrLn hdl "Bye!"
+--"Hello":_:"a" -> 
              -- else, continue looping.
-             _      -> broadcast (name ++ ": " ++ line) >> loop
- 
+             _  -> broadcast (name ++ ": " ++ line) >> loop
     killThread reader                      -- kill after the loop ends
     broadcast ("<-- " ++ name ++ " left.") -- make a final broadcast
     hClose hdl                             -- close the handle

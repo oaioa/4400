@@ -47,15 +47,13 @@ runConn (sock, _) chan msgNum = do
     let broadcast msg = writeChan chan (msgNum, msg)
     hdl <- socketToHandle sock ReadWriteMode
     hSetBuffering hdl NoBuffering
- 
-    
-    hello <- fmap init (hGetLine hdl)
-    
-    hPutStrLn hdl "Hi, what's your name?"
-    name <- fmap init (hGetLine hdl)
-    broadcast ("--> " ++ name ++ " entered chat.")
-    
-    hPutStrLn hdl ("Welcome, " ++ name ++ "!")
+--    name <- fmap init (hGetLine hdl) 
+  --  case stripPrefix "HELO" name of
+    --        Just restOfString -> hPutStrLn hdl("HELO "++restOfString++"\nIP:"++show ip++"\nPort:"++show port++"\nStudentID:17342676\n")
+      --      Nothing -> do
+	--		broadcast ("--> " ++ name ++ " entered chat.")
+   		--	hPutStrLn hdl ("Welcome, " ++ name ++ "!") 
+   
     commLine <- dupChan chan
  
     -- fork off a thread for reading from the duplicated channel

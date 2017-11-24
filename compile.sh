@@ -1,0 +1,2 @@
+cd basicChatServerHaskell/
+stack build

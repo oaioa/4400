@@ -8,10 +8,18 @@ import Control.Exception
 import Control.Concurrent
 import Control.Monad (when)
 import Control.Monad.Fix (fix)
-import Control.Monad (liftM)
+import Control.Monad (liftM,replicateM)
 import Data.List
 import System.Exit
 ip =iNADDR_ANY
+
+
+data User = User {name :: String,idU::Int,hdl::Handle,channel::Chan Msg}
+
+nUser :: String  ->Int ->Handle-> IO User
+nUser name idU hdl = do
+    channel <- newChan
+    return User { name = name,idU=idU,hdl=hdl,channel=channel}
 
 main :: IO ()
 main = do
@@ -36,54 +44,16 @@ mainLoop sock chan msgNum= do
     conn <- accept sock
     let (conn2,addr2) = conn
     forkIO (runConn conn chan msgNum)
-    forkFinally (runConn2 conn chan msgNum) (\_ -> do putStrLn "Killing...a";close sock;close conn2 )    
     mainLoop sock chan $! msgNum + 1
 
 
-runConn2 :: (Socket, SockAddr) -> Chan Msg -> Int -> IO ()
-runConn2 (sock, _) chan msgNum = do
-    let broadcast msg = writeChan chan (msgNum, msg)
-    hdl <- socketToHandle sock ReadWriteMode
-    hSetBuffering hdl NoBuffering
-    commLine <- dupChan chan
-
-    -- fork off a thread for reading from the duplicated channel
-    reader <- forkIO $ fix $ \loop -> do
-        (nextNum, line) <- readChan commLine
-        when (msgNum /= nextNum) $ hPutStrLn hdl line
-        loop
-
-    handle (\(SomeException _) -> return ()) $ fix $ \loop -> do
-        line <- fmap init (hGetLine hdl)
-        case stripPrefix "HELO" line of
-            Just restOfString -> hPutStrLn hdl("HELO ") -- ++restOfString++"\nIP:"++show ip++"\nPort:"++show port++"\nStudentID:17342676\n") >>loop
-            Nothing -> return () 
-        case stripPrefix "JOIN" line of
-            Just restOfString -> hPutStrLn hdl("Joined !")>>loop
-            Nothing -> return () 
-
-        case line of
-        -- If an exception is caught, send a message and break the loop
-            "kill" -> hPutStrLn hdl "Bye!"
-            "KILL_SERVICE" -> hPutStrLn hdl "Bye!"
-            "stop" -> do hPutStrLn hdl "Bye!" 
-            "quit" -> hPutStrLn hdl "Bye!"
-            "exit" -> hPutStrLn hdl "Bye!"
-        -- else, continue looping.
-            _  -> broadcast (" wantAname !!: " ++ line) >>loop
-    killThread reader                      -- kill after the loop ends
-    broadcast ("<-- one left.") -- make a final broadcast
-    hClose hdl       
    
 runConn :: (Socket, SockAddr) -> Chan Msg -> Int -> IO ()
 runConn (sock, _) chan msgNum = do
     let broadcast msg = writeChan chan (msgNum, msg)
     hdl <- socketToHandle sock ReadWriteMode
     hSetBuffering hdl NoBuffering
-    --  case stripPrefix "HELO" name of
-    --        Just restOfString -> hPutStrLn hdl("HELO "++restOfString++"\nIP:"++show ip++"\nPort:"++show port++"\nStudentID:17342676\n")
-    --      Nothing -> do
-    --		   
+   
     commLine <- dupChan chan
 
     -- fork off a thread for reading from the duplicated channel
@@ -94,22 +64,66 @@ runConn (sock, _) chan msgNum = do
 
     handle (\(SomeException _) -> return ()) $ fix $ \loop -> do
         line <- fmap init (hGetLine hdl)
-        case stripPrefix "HELO" line of
-            Just restOfString -> hPutStrLn hdl("HELO ") -- ++restOfString++"\nIP:"++show ip++"\nPort:"++show port++"\nStudentID:17342676\n") >>loop
-            Nothing -> return () 
-        case stripPrefix "JOIN" line of
-            Just restOfString -> hPutStrLn hdl("Joined !")>>loop
-            Nothing -> return () 
+        case words line of
+            ["KILL_SERVICE"] -> do
+                hClose hdl
+            ["JOIN_CHATROOM:", roomName] -> do
+                remain <- replicateM 3 $ hGetLine hdl
+                case map words remain of
+                    [["CLIENT_IP:", _], [ "PORT:", _], ["CLIENT_NAME:", name]] -> do
+                                print("JOIN ok")
+                                thisUser <- nUser name msgNum hdl
+                                hPutStr hdl "NEW USER\n" 
+                                -- print("User created: "++ (show $ name thisUser))
+                                runChat thisUser
+                                loop
+                    _ -> do
+                        print("wrong JOIN")
+                        hPutStr hdl "ERROR SYNTAX JOIN\n" 
+                        loop
+            ["HELO",remain] -> do
+                print("HELO \n")
+                hPutStrLn hdl("HELO " ++remain++
+                        "\nIP:"++"10.62.0.63"++
+                        "\nPort:"++"not implemented"++
+                        "\nStudentID:17342676\n")
+                loop
 
-        case line of
-        -- If an exception is caught, send a message and break the loop
-            "kill" -> hPutStrLn hdl "Bye!"
-            "KILL_SERVICE" -> hPutStrLn hdl "Bye!"
-            "stop" -> do hPutStrLn hdl "Bye!" 
-            "quit" -> hPutStrLn hdl "Bye!"
-            "exit" -> hPutStrLn hdl "Bye!"
-        -- else, continue looping.
-            _  -> broadcast (" wantAname !!: " ++ line) >>loop
+            _ ->   hPutStr hdl "JOIN to begin\n" >> loop
+
     killThread reader                      -- kill after the loop ends
     broadcast ("<-- one left.") -- make a final broadcast
-    hClose hdl                             -- close the handle
+
+
+runChat :: User -> IO ()
+runChat nUser = do
+    print (name nUser ++ " alone.")
+    
+    hPutStr (hdl nUser) $
+        "JOINED_CHATROOM: not available!!" 
+        ++ "\nSERVER_IP: 10.62.0.63" ++ 
+        "\nPORT: not available!!" ++
+         "\nROOM_REF: not available!!" ++
+         "\nJOIN_ID: " ++ (show $ idU nUser) ++ "\n"
+
+    -- fork off a thread for reading messages from client channel
+    reader <- forkIO $ fix $ \loop -> do
+        (nextNum, line) <- readChan $ channel nUser
+        when ((idU nUser) /= nextNum) $ hPutStrLn (hdl nUser) line
+        loop
+
+    handle (\(SomeException _) -> return ()) $ fix $ \loop -> do
+        line <- fmap init (hGetLine (hdl nUser))
+        case words line of
+            ["JOIN_CHATROOM:", roomName] -> do
+                remain <- replicateM 3 $ hGetLine (hdl nUser)
+                case map words remain of
+                    [["CLIENT_IP:", _], [ "PORT:", _], ["CLIENT_NAME:", name]] -> do
+                                print("JOIN ok")
+                                runChat nUser-- !! same chat have to creat anothe one) 
+                                loop
+                    _ -> do
+                        hPutStr (hdl nUser) "Try again.\n" >> loop
+            _ -> do
+                hPutStr (hdl nUser) "Try again.\n" >> loop
+

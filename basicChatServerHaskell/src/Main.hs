@@ -86,8 +86,6 @@ runConn (sock, _) chan msgNum = do
                     [["CLIENT_IP:", _], [ "PORT:", _], ["CLIENT_NAME:", name]] -> do
                                 print("JOIN ok")
                                 thisUser <- nUser name msgNum hdl
-                                hPutStr hdl "NEW USER\n" 
-                                -- print("User created: "++ (show $ name thisUser))
                                 runChat thisUser
                                 loop
                     _ -> do
@@ -113,10 +111,10 @@ runChat nUser = do
     print (nameUser nUser ++ " alone.")
     
     hPutStr (hdl nUser) $
-        "JOINED_CHATROOM: not available!!" 
-        ++ "\nSERVER_IP: 10.62.0.63" ++ 
-        "\nPORT: not available!!" ++
-         "\nROOM_REF: not available!!" ++
+        "JOINED_CHATROOM:0000" 
+        ++ "\nSERVER_IP:10.62.0.63" ++ 
+        "\nPORT:4849" ++
+         "\nROOM_REF:3" ++
          "\nJOIN_ID: " ++ (show $ idU nUser) ++ "\n"
 
     -- fork off a thread for reading messages from client channel
@@ -138,5 +136,5 @@ runChat nUser = do
                     _ -> do
                         hPutStr (hdl nUser) "Try again.\n" >> loop
             _ -> do
-                hPutStr (hdl nUser) "Try again.\n" >> loop
+            	return() >> loop
 

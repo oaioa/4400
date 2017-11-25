@@ -6,24 +6,35 @@ import System.IO
 import System.Environment -- getArgs
 import Control.Exception
 import Control.Concurrent
+import Control.Concurrent.MVar
 import Control.Monad (when)
 import Control.Monad.Fix (fix)
 import Control.Monad (liftM,replicateM)
+-- import Control.Concurrent.STM.TVar --Shared memory locations that support atomic memory transactions
+import Data.Map as Map
 import Data.List
+import Data.Hashable (hash)
 import System.Exit
 ip =iNADDR_ANY
 
 
-data User = User {name :: String,idU::Int,hdl::Handle,channel::Chan Msg}
+data User = User {nameUser :: String,idU::Int,hdl::Handle,channel::Chan Msg}
+
+data Room = Room {nameRoom :: String, idC :: Int,users :: MVar (Map Int User)}
 
 nUser :: String  ->Int ->Handle-> IO User
 nUser name idU hdl = do
     channel <- newChan
-    return User { name = name,idU=idU,hdl=hdl,channel=channel}
+    return User { nameUser = name,idU=idU,hdl=hdl,channel=channel}
+
+newRoom :: String -> User -> IO Room
+newRoom name user = do
+    let d = Map.insert (idU user) user Map.empty
+    c <- newMVar d
+    return Room {nameRoom = name, idC = (hash name), users = c}
 
 main :: IO ()
 main = do
-    return()
     args <- getArgs
     let port = head args
     sock <- socket AF_INET Stream 0    -- create socket
@@ -31,9 +42,11 @@ main = do
     bind sock (SockAddrInet (read port::PortNumber) iNADDR_ANY)   -- listen on TCP port 4242.
     listen sock 2                              -- set a max of 2 queued connections
     chan <- newChan
+    print("yo")
     _ <- forkIO $ fix $ \loop -> do
-        (   _, _) <- readChan chan
+        (_,_) <- readChan chan
         loop
+    print("yo2")
     mainLoop sock chan 0-- pass it into the loop
     return()
 
@@ -69,7 +82,7 @@ runConn (sock, _) chan msgNum = do
                 hClose hdl
             ["JOIN_CHATROOM:", roomName] -> do
                 remain <- replicateM 3 $ hGetLine hdl
-                case map words remain of
+                case fmap words remain of
                     [["CLIENT_IP:", _], [ "PORT:", _], ["CLIENT_NAME:", name]] -> do
                                 print("JOIN ok")
                                 thisUser <- nUser name msgNum hdl
@@ -97,7 +110,7 @@ runConn (sock, _) chan msgNum = do
 
 runChat :: User -> IO ()
 runChat nUser = do
-    print (name nUser ++ " alone.")
+    print (nameUser nUser ++ " alone.")
     
     hPutStr (hdl nUser) $
         "JOINED_CHATROOM: not available!!" 
@@ -117,7 +130,7 @@ runChat nUser = do
         case words line of
             ["JOIN_CHATROOM:", roomName] -> do
                 remain <- replicateM 3 $ hGetLine (hdl nUser)
-                case map words remain of
+                case fmap words remain of
                     [["CLIENT_IP:", _], [ "PORT:", _], ["CLIENT_NAME:", name]] -> do
                                 print("JOIN ok")
                                 runChat nUser-- !! same chat have to creat anothe one) 

@@ -64,11 +64,12 @@ loopInf = do
             loopInf  
 
 reverseWords :: String -> String  
-reverseWords = unwords ( map reverse . words) 
+reverseWords = unwords . map reverse . words 
 
 someFunc :: IO ()
 someFunc = do
     let myCar=Car{brand="peu",year=2000} 
+    putStrLn ("R :" ++ $ show $ boomBangs [10..20])
 {-    putStrLn ((show $ funcNum 5)
                 ++" "++ (show (4 `elem` [0,1,2,3]))
                 ++" "++ (head $  boomBangs [20..30])
@@ -81,8 +82,9 @@ someFunc = do
                 ++"\n"++ show (Green==Yellow)
                 ++"\n"++ show (Yellow==Green)
                 )
--}  
-    loopInf
+-} 
+  --  loopInf
+    
 
                 
                     

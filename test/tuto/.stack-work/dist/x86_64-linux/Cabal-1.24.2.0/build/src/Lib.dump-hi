@@ -1,10 +1,10 @@
 
 ==================== FINAL INTERFACE ====================
-2017-11-23 18:02:41.609846 UTC
+2017-11-24 11:36:33.906597 UTC
 
 interface tuto-0.1.0.0-1HexxdJ2kYu8U2s0fMBLRJ:Lib 8002
-  interface hash: af8ce32b05f9f633f5a59ca22d42c6f9
-  ABI hash: 924cebdafeaf26c91af0cab68756aaa3
+  interface hash: 0ba7f318c03345fbac723069736fa135
+  ABI hash: c0926de73234912a3d7127f1aae4474e
   export-list hash: 3c1a53d3f930691a94b428b24e2f7c22
   orphan hash: 693e9af84d3dfcc71e640e005bdc5e2e
   flag hash: ab396f11155bd696ab63895436e6f1df
@@ -23,6 +23,7 @@ family instance modules: base-4.9.1.0:Control.Applicative
                          base-4.9.1.0:GHC.Generics base-4.9.1.0:GHC.IO.Exception
                          base-4.9.1.0:GHC.TypeLits
 import  -/  base-4.9.1.0:Data.Foldable 3e0b6967a1da89945d0e2d47266337a2
+import  -/  base-4.9.1.0:Data.OldList 27987919d8da2f92e3f472ca81f730f8
 import  -/  base-4.9.1.0:GHC.Base c4231c43c07e46080a26bf94094c7aa1
 import  -/  base-4.9.1.0:GHC.List ab8c4e523e6c479c549d3bcd5fc4a439
 import  -/  base-4.9.1.0:GHC.Num 00bfaa7b2f9d6084913c0697a8a49ec8
@@ -33,12 +34,256 @@ import  -/  base-4.9.1.0:System.IO e4a64a8e3dce8616da54f0ee7104f7db
 import  -/  ghc-prim-0.5.0.0:GHC.Classes 0bdf3d057a415ec1b84a7b1994efbe47
 import  -/  ghc-prim-0.5.0.0:GHC.Types 89f8de4f08018c9177c98d979eae0e45
 import  -/  integer-gmp-1.0.0.1:GHC.Integer.Type 318df275d77dcdb18e0006d8d7870c2a
+2439ddce42ad96d1906a23c887a6ff1f
+  $fEqTrafficLight :: GHC.Classes.Eq Lib.TrafficLight
+  DFunId
+  {- HasNoCafRefs, Strictness: m, Inline: [ALWAYS] CONLIKE,
+     Unfolding: DFun:.
+                  @ Lib.TrafficLight
+                  Lib.$fEqTrafficLight_$c==
+                  Lib.$fEqTrafficLight_$c/= -}
+82ecf2f6507449ad2bd826a0d11c4f76
+  $fEqTrafficLightPerso :: GHC.Classes.Eq Lib.TrafficLightPerso
+  DFunId
+  {- HasNoCafRefs, Strictness: m, Inline: [ALWAYS] CONLIKE,
+     Unfolding: DFun:.
+                  @ Lib.TrafficLightPerso
+                  Lib.$fEqTrafficLightPerso_$c==
+                  Lib.$fEqTrafficLightPerso_$c/= -}
+82ecf2f6507449ad2bd826a0d11c4f76
+  $fEqTrafficLightPerso_$c/= ::
+    Lib.TrafficLightPerso -> Lib.TrafficLightPerso -> GHC.Types.Bool
+  {- Arity: 2, HasNoCafRefs, Strictness: <L,U><L,U>,
+     Inline: INLINE (sat-args=2),
+     Unfolding: InlineRule (2, False, False)
+                (\ (x :: Lib.TrafficLightPerso) (y :: Lib.TrafficLightPerso) ->
+                 GHC.Classes.not (Lib.$fEqTrafficLightPerso_$c== x y)) -}
+82ecf2f6507449ad2bd826a0d11c4f76
+  $fEqTrafficLightPerso_$c== ::
+    Lib.TrafficLightPerso -> Lib.TrafficLightPerso -> GHC.Types.Bool
+  {- Arity: 2, HasNoCafRefs, Strictness: <S,1*U><L,1*U>,
+     Unfolding: InlineRule (2, True, False)
+                (\ (ds :: Lib.TrafficLightPerso) (ds1 :: Lib.TrafficLightPerso) ->
+                 case ds of wild {
+                   Lib.Red
+                   -> case ds1 of wild1 {
+                        DEFAULT -> GHC.Types.False Lib.Red -> GHC.Types.True }
+                   Lib.Yellow -> GHC.Types.False
+                   Lib.Green
+                   -> case ds1 of wild1 {
+                        Lib.Red -> GHC.Types.False
+                        Lib.Yellow -> GHC.Types.True
+                        Lib.Green -> GHC.Types.True } }) -}
+2439ddce42ad96d1906a23c887a6ff1f
+  $fEqTrafficLight_$c/= ::
+    Lib.TrafficLight -> Lib.TrafficLight -> GHC.Types.Bool
+  {- Arity: 2, HasNoCafRefs, Strictness: <S,1*U><S,1*U>,
+     Unfolding: InlineRule (2, True, False)
+                (\ (a :: Lib.TrafficLight) (b :: Lib.TrafficLight) ->
+                 case a of wild {
+                   Lib.Redn
+                   -> case b of wild1 {
+                        DEFAULT -> GHC.Types.True Lib.Redn -> GHC.Types.False }
+                   Lib.Yellown
+                   -> case b of wild1 {
+                        DEFAULT -> GHC.Types.True Lib.Yellown -> GHC.Types.False }
+                   Lib.Greenn
+                   -> case b of wild1 {
+                        DEFAULT -> GHC.Types.True Lib.Greenn -> GHC.Types.False } }) -}
+2439ddce42ad96d1906a23c887a6ff1f
+  $fEqTrafficLight_$c== ::
+    Lib.TrafficLight -> Lib.TrafficLight -> GHC.Types.Bool
+  {- Arity: 2, HasNoCafRefs, Strictness: <S,1*U><S,1*U>,
+     Unfolding: InlineRule (2, True, False)
+                (\ (ds :: Lib.TrafficLight) (ds1 :: Lib.TrafficLight) ->
+                 case ds of wild {
+                   Lib.Redn
+                   -> case ds1 of wild1 {
+                        DEFAULT -> GHC.Types.False Lib.Redn -> GHC.Types.True }
+                   Lib.Yellown
+                   -> case ds1 of wild1 {
+                        DEFAULT -> GHC.Types.False Lib.Yellown -> GHC.Types.True }
+                   Lib.Greenn
+                   -> case ds1 of wild1 {
+                        DEFAULT -> GHC.Types.False Lib.Greenn -> GHC.Types.True } }) -}
+c189ea5837f6baed66e9128376802887
+  $fShowCar :: GHC.Show.Show Lib.Car
+  DFunId
+  {- Strictness: m, Inline: [ALWAYS] CONLIKE,
+     Unfolding: DFun:.
+                  @ Lib.Car
+                  Lib.$fShowCar_$cshowsPrec
+                  Lib.$fShowCar_$cshow
+                  Lib.$fShowCar_$cshowList -}
+c189ea5837f6baed66e9128376802887
+  $fShowCar1 :: Lib.Car -> GHC.Show.ShowS
+  {- Arity: 2,
+     Unfolding: (\ (w :: Lib.Car) (w1 :: GHC.Base.String) ->
+                 case w of ww { Lib.Car ww1 ww2 ->
+                 Lib.$w$cshowsPrec 0# ww1 ww2 w1 }) -}
+a4da0dabc4150b879ee1b9d8467db030
+  $fShowCar2 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# "}"#) -}
+16d59d9b490beaee36eedaa81b815a7d
+  $fShowCar3 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# "year = "#) -}
+f6e78b37e2a9a55bdc06bfe87c610dff
+  $fShowCar4 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# ", "#) -}
+38ab035c7b65c61aaf323bb96d093afc
+  $fShowCar5 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# "brand = "#) -}
+61a0ee7f8ff247ccecafe0000039a5e4
+  $fShowCar6 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# "Car {"#) -}
+c189ea5837f6baed66e9128376802887
+  $fShowCar_$cshow :: Lib.Car -> GHC.Base.String
+  {- Arity: 1, Strictness: <S,1*U(1*U,1*U(U))>,
+     Unfolding: InlineRule (1, True, False)
+                (\ (x :: Lib.Car) ->
+                 Lib.$fShowCar_$cshowsPrec
+                   GHC.Show.shows22
+                   x
+                   (GHC.Types.[] @ GHC.Types.Char)) -}
+c189ea5837f6baed66e9128376802887
+  $fShowCar_$cshowList :: [Lib.Car] -> GHC.Show.ShowS
+  {- Arity: 2,
+     Unfolding: (GHC.Show.showList__ @ Lib.Car Lib.$fShowCar1) -}
+c189ea5837f6baed66e9128376802887
+  $fShowCar_$cshowsPrec :: GHC.Types.Int -> Lib.Car -> GHC.Show.ShowS
+  {- Arity: 3, Strictness: <S(S),1*U(U)><S,1*U(1*U,1*U(U))><L,U>,
+     Inline: INLINE[0],
+     Unfolding: InlineRule (3, True, False)
+                (\ (w :: GHC.Types.Int) (w1 :: Lib.Car) (w2 :: GHC.Base.String) ->
+                 case w of ww { GHC.Types.I# ww1 ->
+                 case w1 of ww2 { Lib.Car ww3 ww4 ->
+                 Lib.$w$cshowsPrec ww1 ww3 ww4 w2 } }) -}
 b7772959f192b8e230ea90393189709b
   $seven1 :: GHC.Integer.Type.Integer
   {- HasNoCafRefs, Unfolding: (0) -}
 c058740f625a84111240f4c74643ae15
   $seven2 :: GHC.Integer.Type.Integer
   {- HasNoCafRefs, Unfolding: (2) -}
+72b5a79ceb2e9ddc5c88cf731fa806ef
+  $tc'Car :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   13272412540698335980##
+                   14649441053194356367##
+                   Lib.$trModule
+                   Lib.$tc'Car1) -}
+12ea4c137e0e8cfdf57d4be7a37ce2d9
+  $tc'Car1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "'Car"#) -}
+398f9e9e516cc27109804464a5bafd23
+  $tc'Green :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   2322343225474218869##
+                   3798925254112841097##
+                   Lib.$trModule
+                   Lib.$tc'Green1) -}
+ab3bee6133c57f176e97b22d61e39ac5
+  $tc'Green1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "'Green"#) -}
+ecab922912926b242a97cb449814b044
+  $tc'Greenn :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   8649851966935006059##
+                   6815093604542962044##
+                   Lib.$trModule
+                   Lib.$tc'Greenn1) -}
+3d7a5d897f325b11fe9c7a75d23bbf6e
+  $tc'Greenn1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "'Greenn"#) -}
+0d0a5054a11c6400bb3279327ff49747
+  $tc'Red :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   12922961194556999882##
+                   3847185340623117486##
+                   Lib.$trModule
+                   Lib.$tc'Red1) -}
+bd4d0f5b857b1303a1c06ad4f1dc012f
+  $tc'Red1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "'Red"#) -}
+70876b20fb740bdcee9198b7a2547d75
+  $tc'Redn :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   3344928024737350597##
+                   17360166790143586083##
+                   Lib.$trModule
+                   Lib.$tc'Redn1) -}
+5e788299fc017e39b4203d8674991e46
+  $tc'Redn1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "'Redn"#) -}
+a9b6469bea6b251945f8d43d0f153d6b
+  $tc'Yellow :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   9398537467062598604##
+                   8683712990778648811##
+                   Lib.$trModule
+                   Lib.$tc'Yellow1) -}
+ef6fd8d2b4fb6e16ce561f91126f21c0
+  $tc'Yellow1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "'Yellow"#) -}
+c38df7df7c40c4b149657e0476721711
+  $tc'Yellown :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   11382764407051908585##
+                   18252693258775603901##
+                   Lib.$trModule
+                   Lib.$tc'Yellown1) -}
+9a5175c8195aebbd623cee594964cba2
+  $tc'Yellown1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "'Yellown"#) -}
+11dc3d327849f5bb1fc88f39f1414780
+  $tcCar :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   12352705289316105039##
+                   10179223874355490164##
+                   Lib.$trModule
+                   Lib.$tcCar1) -}
+ea059547b7af5e902be8930037b71a5a
+  $tcCar1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "Car"#) -}
+17c789b78d25e6781fb5d072dfd503ff
+  $tcTrafficLight :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   11363955806542295154##
+                   1883466286607523697##
+                   Lib.$trModule
+                   Lib.$tcTrafficLight1) -}
+cec0611c7cb7418d9cea0141ddbd9c4a
+  $tcTrafficLight1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "TrafficLight"#) -}
+2550a0ec01e9449dc1a472c9ee2688d0
+  $tcTrafficLightPerso :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   4322756749074719813##
+                   53586162068661042##
+                   Lib.$trModule
+                   Lib.$tcTrafficLightPerso1) -}
+96e9ed844cdb0b185245d84dd1178e3a
+  $tcTrafficLightPerso1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "TrafficLightPerso"#) -}
 dc2babb194dfef649a7287c6fb10862b
   $trModule :: GHC.Types.Module
   {- HasNoCafRefs, Strictness: m,
@@ -52,12 +297,79 @@ bc5ca54a60bc2dc08024869974e34e37
   {- HasNoCafRefs, Strictness: m1,
      Unfolding: (GHC.Types.TrNameS
                    "tuto-0.1.0.0-1HexxdJ2kYu8U2s0fMBLRJ"#) -}
-d12dd8c85176801f554b7e90db8ae553
+637985e2d2919551c2b52a0e05133c6f
+  $w$cshowsPrec ::
+    GHC.Prim.Int#
+    -> GHC.Base.String
+    -> GHC.Types.Int
+    -> GHC.Base.String
+    -> GHC.Base.String
+  {- Arity: 4, Strictness: <S,U><L,1*U><L,1*U(U)><L,U>, Inline: [0],
+     Unfolding: (\ (ww :: GHC.Prim.Int#)
+                   (ww1 :: GHC.Base.String)
+                   (ww2 :: GHC.Types.Int)
+                   (w :: GHC.Base.String) ->
+                 let {
+                   p :: GHC.Show.ShowS {- Arity: 1, Strictness: <L,1*U> -}
+                   = \ (x :: GHC.Base.String)[OneShot] ->
+                     GHC.Base.++
+                       @ GHC.Types.Char
+                       Lib.$fShowCar6
+                       (GHC.Base.++
+                          @ GHC.Types.Char
+                          Lib.$fShowCar5
+                          (GHC.Types.:
+                             @ GHC.Types.Char
+                             GHC.Show.shows6
+                             (GHC.Show.showLitString
+                                ww1
+                                (GHC.Types.:
+                                   @ GHC.Types.Char
+                                   GHC.Show.shows6
+                                   (GHC.Base.++
+                                      @ GHC.Types.Char
+                                      Lib.$fShowCar4
+                                      (GHC.Base.++
+                                         @ GHC.Types.Char
+                                         Lib.$fShowCar3
+                                         (case ww2 of ww3 { GHC.Types.I# ww4 ->
+                                          case GHC.Show.$wshowSignedInt
+                                                 0#
+                                                 ww4
+                                                 (GHC.Base.++
+                                                    @ GHC.Types.Char
+                                                    Lib.$fShowCar2
+                                                    x) of ww5 { (#,#) ww6 ww7 ->
+                                          GHC.Types.: @ GHC.Types.Char ww6 ww7 } })))))))
+                 } in
+                 case GHC.Prim.tagToEnum#
+                        @ GHC.Types.Bool
+                        (GHC.Prim.>=# ww 11#) of wild {
+                   GHC.Types.False -> p w
+                   GHC.Types.True
+                   -> GHC.Types.:
+                        @ GHC.Types.Char
+                        GHC.Show.shows7
+                        (p (GHC.Types.: @ GHC.Types.Char GHC.Show.shows4 w)) }) -}
+c189ea5837f6baed66e9128376802887
+  data Car = Car {brand :: GHC.Base.String, year :: GHC.Types.Int}
+2439ddce42ad96d1906a23c887a6ff1f
+  data TrafficLight = Redn | Yellown | Greenn
+82ecf2f6507449ad2bd826a0d11c4f76
+  data TrafficLightPerso = Red | Yellow | Green
+5871a5ea1aff9ca765874e3d39725b87
+  brand :: Lib.Car -> GHC.Base.String
+  RecSel Left Lib.Car
+  {- Arity: 1, HasNoCafRefs, Strictness: <S(SL),1*U(1*U,A)>,
+     Unfolding: InlineRule (1, True, False)
+                (\ (ds :: Lib.Car) ->
+                 case ds of wild { Lib.Car ds1 ds2 -> ds1 }) -}
+92a76aa6843c3aa07b1d12c4046f8553
   someFunc :: GHC.Types.IO ()
   {- Arity: 1, Strictness: <S,U>,
      Unfolding: InlineRule (0, True, True)
                 Lib.someFunc1 `cast` (Sym (GHC.Types.N:IO[0] <()>_R)) -}
-ff106aed43b9130bd918e93507dc2979
+efb0370c06c37718d9430b861549a73c
   someFunc1 ::
     GHC.Prim.State# GHC.Prim.RealWorld
     -> (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
@@ -69,108 +381,47 @@ ff106aed43b9130bd918e93507dc2979
                    Lib.someFunc2
                    GHC.Types.True
                    eta) -}
-e7d3165d7958d297e5039301a0001bd8
-  someFunc10 :: GHC.Integer.Type.Integer
-  {- HasNoCafRefs, Unfolding: (20) -}
-e653635e0d716d3002baf1407919fd11
-  someFunc11 :: [GHC.Integer.Type.Integer]
-  {- HasNoCafRefs,
-     Unfolding: (GHC.Types.:
-                   @ GHC.Integer.Type.Integer
-                   Lib.$seven1
-                   Lib.someFunc12) -}
-483da50a70297791b58d24905b0ade62
-  someFunc12 :: [GHC.Integer.Type.Integer]
-  {- HasNoCafRefs,
-     Unfolding: (GHC.Types.:
-                   @ GHC.Integer.Type.Integer
-                   Lib.someFunc16
-                   Lib.someFunc13) -}
-aa64ad3931e56f5312c9a35affa08224
-  someFunc13 :: [GHC.Integer.Type.Integer]
-  {- HasNoCafRefs,
-     Unfolding: (GHC.Types.:
-                   @ GHC.Integer.Type.Integer
-                   Lib.$seven2
-                   Lib.someFunc14) -}
-c2f8f1afc9bd1060118198906a462a51
-  someFunc14 :: [GHC.Integer.Type.Integer]
-  {- HasNoCafRefs,
-     Unfolding: (GHC.Types.:
-                   @ GHC.Integer.Type.Integer
-                   Lib.someFunc15
-                   (GHC.Types.[] @ GHC.Integer.Type.Integer)) -}
-74cd36c4ebe4166535d9867d880688ca
-  someFunc15 :: GHC.Integer.Type.Integer
-  {- HasNoCafRefs, Unfolding: (3) -}
-3f4cea7680729bb7045f95904bea013f
-  someFunc16 :: GHC.Integer.Type.Integer
-  {- HasNoCafRefs, Unfolding: (1) -}
-04d1ae4e8b886881610c359f1b38a95b
-  someFunc17 :: GHC.Integer.Type.Integer
-  {- HasNoCafRefs, Unfolding: (4) -}
-a412a19d1709aa56ad21b02356ef7578
-  someFunc18 :: GHC.Integer.Type.Integer
-  {- HasNoCafRefs, Unfolding: (25) -}
-dd87741db7556fa541195aee1fbe1165
+82a23d2255dbeb71c7c28937ee7ccfdc
   someFunc2 :: GHC.Base.String
-  {- Unfolding: (case GHC.Show.$w$cshowsPrec1
-                        0#
-                        Lib.someFunc18
-                        (GHC.Types.[] @ GHC.Types.Char) of ww2 { (#,#) ww3 ww4 ->
-                 GHC.Base.++
-                   @ GHC.Types.Char
-                   (GHC.Types.: @ GHC.Types.Char ww3 ww4)
-                   Lib.someFunc3 }) -}
-d91df8bcae0edce2c90463897d230f38
-  someFunc3 :: [GHC.Types.Char]
-  {- Unfolding: (GHC.CString.unpackAppendCString#
-                   " "#
-                   Lib.someFunc4) -}
-519a5206b624499ed8a181010e5086eb
-  someFunc4 :: [GHC.Types.Char]
-  {- Unfolding: (case GHC.List.elem
-                        @ GHC.Integer.Type.Integer
-                        GHC.Integer.Type.$fEqInteger
-                        Lib.someFunc17
-                        Lib.someFunc11 of wild {
-                   GHC.Types.False
-                   -> GHC.Base.++ @ GHC.Types.Char GHC.Show.shows18 Lib.someFunc_n
-                   GHC.Types.True
-                   -> GHC.Base.++
+  {- Unfolding: (case Lib.someFunc_go Lib.someFunc3 of wild {
+                   []
+                   -> GHC.CString.unpackAppendCString#
+                        "[]"#
+                        (GHC.Types.[] @ GHC.Types.Char)
+                   : x xs
+                   -> GHC.Types.:
                         @ GHC.Types.Char
-                        GHC.Show.shows17
-                        Lib.someFunc_n }) -}
-92e39f4a8a672411a8568acd67b17f2d
-  someFunc5 :: [GHC.Types.Char]
-  {- Unfolding: (GHC.Base.++
-                   @ GHC.Types.Char
-                   Lib.someFunc9
-                   Lib.someFunc6) -}
-653fd817e0b5d3e38aaa4ca07e431e38
-  someFunc6 :: [GHC.Types.Char]
-  {- Unfolding: (GHC.CString.unpackAppendCString#
-                   "\n"#
-                   Lib.someFunc7) -}
-b2e3a300541ac2d38cdcdb2d135ceaf8
-  someFunc7 :: [GHC.Types.Char]
-  {- Unfolding: (GHC.CString.unpackAppendCString#
-                   "the list is "#
-                   Lib.someFunc8) -}
-a57fe2fc4d5d6ee527566474e4a11dfb
-  someFunc8 :: [GHC.Types.Char]
-  {- Unfolding: (GHC.CString.unpackCString# "longer list"#) -}
-5cdc7fd5273721a7953f698a1526c8f6
-  someFunc9 :: [GHC.Types.Char]
-  {- Unfolding: (Lib.someFunc_go Lib.someFunc10) -}
-01f5fc92641278df223709a08bf6924f
-  someFunc_go :: GHC.Integer.Type.Integer -> [GHC.Types.Char]
+                        GHC.Show.showList__2
+                        (GHC.Types.:
+                           @ GHC.Types.Char
+                           GHC.Show.shows6
+                           (GHC.Show.showLitString
+                              x
+                              (GHC.Types.:
+                                 @ GHC.Types.Char
+                                 GHC.Show.shows6
+                                 (Lib.someFunc_showl xs)))) }) -}
+1c936aa494eec9d6f5efeddb276eb973
+  someFunc3 :: GHC.Integer.Type.Integer
+  {- HasNoCafRefs, Unfolding: (10) -}
+8f20f9d0d76ec809f679d2342c5e614c
+  someFunc_go :: GHC.Integer.Type.Integer -> [[GHC.Types.Char]]
   {- Arity: 1, Strictness: <S,U> -}
-37c058ebe5f439863b123b838d3623cb
-  someFunc_n :: [GHC.Types.Char]
-  {- Unfolding: (GHC.CString.unpackAppendCString#
-                   " "#
-                   Lib.someFunc5) -}
+b4c8f3b1abf716df75b69b198ec24851
+  someFunc_showl :: [[GHC.Types.Char]] -> GHC.Base.String
+  {- Arity: 1, Strictness: <S,1*U> -}
+959e2d1f9af876532123e55dd7ffc429
+  year :: Lib.Car -> GHC.Types.Int
+  RecSel Left Lib.Car
+  {- Arity: 1, HasNoCafRefs, Strictness: <S(LS),1*U(A,1*U(U))>m,
+     Unfolding: InlineRule (1, True, False)
+                (\ (ds :: Lib.Car) ->
+                 case ds of wild { Lib.Car ds1 ds2 -> ds2 }) -}
+instance [safe] GHC.Classes.Eq [Lib.TrafficLight]
+  = Lib.$fEqTrafficLight
+instance [safe] GHC.Classes.Eq [Lib.TrafficLightPerso]
+  = Lib.$fEqTrafficLightPerso
+instance [safe] GHC.Show.Show [Lib.Car] = Lib.$fShowCar
 vectorised variables:
 vectorised tycons:
 vectorised reused tycons:

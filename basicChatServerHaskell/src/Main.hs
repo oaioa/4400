@@ -44,7 +44,6 @@ joinRoom user nameR rooms = do
         Nothing -> do
             print("room do not exist "++nameR)
             print(show $ hdlU user)
-            hPutStrLn (hdlU user) ("It is coming")
             newRoom <- newRoom nameR user
             let newMap = Map.insert (idC newRoom) newRoom roomMap
             takeMVar rooms --take before put otherwise it is blocking because full
@@ -124,7 +123,6 @@ runConn (sock, _) chan msgNum rooms = do
                                 print("JOIN ok")
                                 thisUser <- nUser name msgNum hdl
                                 print(show $ hdlU thisUser)
-                                hPutStrLn (hdlU thisUser) "ready to join!"
                                 joinRoom thisUser roomName rooms
                                 runChat thisUser rooms
                                 loop
@@ -166,7 +164,35 @@ runChat user rooms = do
                                 print("JOIN ok")
                                 joinRoom user roomName rooms 
                                 loop
+                                print("problem ?")
                     _ -> do
-                        print("wrong join for user  "++ (show $ idU user)) >> loop
+                                print("wrong join for user  "++ (show $ idU user)) >> loop
+            ["LEAVE_CHATROOM:", roomRef] -> do
+                remain <- replicateM 2 $ hGetLine (hdlU user)
+                case fmap words remain of
+                    [["JOIN_ID:", cId], ["CLIENT_NAME:", name]] -> do
+                                print("LEAVE ok")
+                                loop
+                    _ -> do
+                                print("wrong leave for user  "++ (show $ idU user)) >> loop
+            ["DISCONNECT:", _] -> do
+                remain <- replicateM 2 $ hGetLine (hdlU user)
+                case fmap words remain of
+                    [["PORT:", _], ["CLIENT_NAME:", name]] -> do
+                            print("LEAVE ok")
+                            loop
+                    _ -> do
+                            print("wrong disconnect for user  "++ (show $ idU user)) >> loop   
+            ["CHAT:", roomRef] -> do
+                remain <- replicateM 4 $ hGetLine (hdlU user)
+                case fmap words remain of
+                    [["JOIN_ID:", cId], ["CLIENT_NAME:", name], ("MESSAGE:":msg), []] -> do
+                                print("CHAT ok : " ++ (show msg))
+                                loop
+                    _ -> do
+                                print("wrong chat for user  "++ (show $ idU user)) >> loop
+
+        
             _ -> do
                 return() >> loop
+

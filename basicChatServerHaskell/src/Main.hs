@@ -132,7 +132,8 @@ runConn (sock, _) chan msgNum rooms = do
         loop
 
     handle (\(SomeException _) -> return ()) $ fix $ \loop -> do
-        line <- fmap init (hGetLine hdl)
+        line <- (hGetLine hdl)
+	print("line : " ++ line)
         case words line of
             ["KILL_SERVICE"] -> do
                 hClose hdl
@@ -175,8 +176,9 @@ runChat user rooms = do
         loop
 
     handle (\(SomeException _) -> return ()) $ fix $ \loop -> do
-        line <- fmap init (hGetLine (hdlU user))
-        case words line of
+        line <-  (hGetLine (hdlU user))
+        print("line : "++line)
+	case words line of
             ["JOIN_CHATROOM:", roomName] -> do
                 remain <- replicateM 3 $ hGetLine (hdlU user)
                 case fmap words remain of

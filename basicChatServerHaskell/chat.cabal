@@ -18,8 +18,4 @@ executable simpleServer
   main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
-<<<<<<< HEAD:basicChatServerHaskell/chat.cabal
   build-depends:       base, network,containers, hashable
-=======
-  build-depends:       base, network, containers,hashable
->>>>>>> 2e5cabe77d22bf52fc49712bb0417bfdc4b1f3f4:basicChatServerHaskell/simpleServer.cabal

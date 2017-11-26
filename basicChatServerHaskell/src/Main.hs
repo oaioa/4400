@@ -53,7 +53,7 @@ joinRoom user nameR rooms = do
                 "\nPORT: 0" ++
                 "\nROOM_REF: " ++(show $ idC newRoom)++
                 "\nJOIN_ID: " ++ (show $ idU user) ++ "\n"
-            messageUser user "HELLO !" (idC newRoom) rooms
+            messageUser user ("HELLO I am "++(nameUser user)) (idC newRoom) rooms
         Just room -> do
             print("room do exist "++nameR)
             userMap <- readMVar (users room)
@@ -65,7 +65,7 @@ joinRoom user nameR rooms = do
                 "\nPORT: 0" ++
                 "\nROOM_REF: " ++(show $ idC room)++
                 "\nJOIN_ID: " ++ (show $ idU user) ++ "\n"
-            messageUser user "HELLO !" (idC room) rooms
+            messageUser user ("HELLO I am "++(nameUser user)) (idC room) rooms
             
 
 

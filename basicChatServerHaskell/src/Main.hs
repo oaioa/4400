@@ -18,6 +18,7 @@ import System.Exit
 ip =iNADDR_ANY
 
 
+type Msg = (Int, String)
 data User = User {nameUser :: String,idU::Int,hdlU::Handle,channel::Chan Msg}
 
 data Room = Room {nameRoom :: String, idC :: Int,users :: MVar (Map Int User)}
@@ -43,7 +44,6 @@ joinRoom user nameR rooms = do
     case room of
         Nothing -> do
             print("room do not exist "++nameR)
-            print(show $ hdlU user)
             newRoom <- newRoom nameR user
             let newMap = Map.insert (idC newRoom) newRoom roomMap
             takeMVar rooms --take before put otherwise it is blocking because full
@@ -105,7 +105,6 @@ main = do
     mainLoop sock chan 0-- pass it into the loop
     return()
 
-type Msg = (Int, String)
 
 mainLoop :: Socket -> Chan Msg -> Int -> IO ()
 mainLoop sock chan msgNum= do
@@ -144,8 +143,9 @@ runConn (sock, _) chan msgNum rooms = do
                     [["CLIENT_IP:", _], [ "PORT:", _], ["CLIENT_NAME:", name]] -> do
                                 print("JOIN:  ok")
                                 thisUser <- nUser name msgNum hdl
-                                print(show $ hdlU thisUser)
                                 joinRoom thisUser roomName rooms
+                                hPutStrLn (hdlU thisUser) (name ++" joined")
+                                writeChan chan (msgNum,(name++" joined"))
                                 runChat thisUser rooms
                                -- loop GET OUT of this loop
                     _ -> do

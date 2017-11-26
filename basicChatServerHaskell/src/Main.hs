@@ -23,11 +23,10 @@ data User = User {nameUser :: String,idU::Int,hdlU::Handle,channel::Chan Msg}
 
 data Room = Room {nameRoom :: String, idC :: Int,users :: MVar (Map Int User)}
 
-nUser :: String  ->Int ->Handle-> IO User
-nUser name idU hdl = do
-    channel <- newChan
+nUser :: String  ->Int ->Handle->Chan Msg -> IO User
+nUser name idU hdl chan= do
     print("user created "++ name)
-    return User { nameUser = name,idU=idU,hdlU=hdl,channel=channel}
+    return User { nameUser = name,idU=idU,hdlU=hdl,channel=chan}
 
 
 newRoom :: String -> User -> IO Room
@@ -54,6 +53,7 @@ joinRoom user nameR rooms = do
                 "\nPORT: 0" ++
                 "\nROOM_REF: " ++(show $ idC newRoom)++
                 "\nJOIN_ID: " ++ (show $ idU user) ++ "\n"
+            messageUser user "HELLO !" (idC newRoom) rooms
         Just room -> do
             print("room do exist "++nameR)
             userMap <- readMVar (users room)
@@ -65,13 +65,17 @@ joinRoom user nameR rooms = do
                 "\nPORT: 0" ++
                 "\nROOM_REF: " ++(show $ idC room)++
                 "\nJOIN_ID: " ++ (show $ idU user) ++ "\n"
-
+            messageUser user "HELLO !" (idC room) rooms
+            
 
 
 messageUser::User -> String ->Int -> MVar (Map Int Room)  -> IO ()
 messageUser user message idRoom rooms=do
     roomsMap <- readMVar rooms
     let room = Map.lookup idRoom roomsMap
+    let broadcast msg = writeChan (channel user) ((idU user) , msg)
+    broadcast("In sending")
+    print("yo!!")
     case room of
         Nothing -> do
             print("room do not exist "++(show idRoom))
@@ -81,11 +85,11 @@ messageUser user message idRoom rooms=do
             let newMap = Map.insert (idU user) user userMap
             takeMVar (users room)
             putMVar (users room) newMap
-            hPutStr (hdlU user) $
-                "CHAT: " ++ (show idRoom) ++ 
-                "\nCLIENT_NAME: " ++ (nameUser user) ++ 
-                "\nMESSAGE: " ++ message ++ "\n\n"
-                 
+            let line = "CHAT: " ++ (show idRoom) ++ 
+                            "\nCLIENT_NAME: " ++ (nameUser user) ++ 
+                            "\nMESSAGE: " ++ message ++ "\n\n"
+            hPutStr (hdlU user) line
+            broadcast line
 main :: IO ()
 main = do
     print("Welcome")
@@ -123,29 +127,25 @@ runConn (sock, _) chan msgNum rooms = do
     hSetBuffering hdl NoBuffering
    
     commLine <- dupChan chan
-    
     -- fork off a thread for reading from the duplicated channel
     reader <- forkIO $ fix $ \loop -> do
         (nextNum, line) <- readChan commLine
         print("|| reader !!!")
         when (msgNum /= nextNum) $  hPutStrLn hdl line
         loop
-
     handle (\(SomeException _) -> return ()) $ fix $ \loop -> do
         line <- hGetLine hdl
         print("LINE conn: " ++ line)
         case words line of
             ["KILL_SERVICE"] -> do
-                hClose hdl
+                return()
             ["JOIN_CHATROOM:", roomName] -> do
                 remain <- replicateM 3 $ hGetLine hdl
                 case fmap words remain of
                     [["CLIENT_IP:", _], [ "PORT:", _], ["CLIENT_NAME:", name]] -> do
                                 print("JOIN:  ok")
-                                thisUser <- nUser name msgNum hdl
+                                thisUser <- nUser name msgNum hdl chan
                                 joinRoom thisUser roomName rooms
-                                hPutStrLn (hdlU thisUser) (name ++" joined")
-                                writeChan chan (msgNum,(name++" joined"))
                                 runChat thisUser rooms
                                -- loop GET OUT of this loop
                     _ -> do
@@ -161,24 +161,21 @@ runConn (sock, _) chan msgNum rooms = do
 
             _ -> do 
                 loop
-    killThread reader                      -- kill after the loop ends
-    broadcast ("<-- one left.") -- make a final broadcast
-
+    --killThread reader                      -- kill after the loop ends
 
 runChat :: User ->MVar (Map Int Room)-> IO ()
 runChat user rooms = do
-    print (nameUser user ++ " alone.")
-    
+    let broadcast msg = writeChan (channel user) ((idU user) , msg)
     -- fork off a thread for reading messages from client channel
-    reader <- forkIO $ fix $ \loop -> do
-        (nextNum, line) <- readChan $ channel user
-        when ((idU user) /= nextNum) $ hPutStrLn (hdlU user) line
-        loop
-
+    
     handle (\(SomeException _) -> return ()) $ fix $ \loop -> do
         line <-  (hGetLine (hdlU user))
         print("LINE chat : "++line)
 	case words line of
+            ["KILL_SERVICE"] -> do return()
+            ["kill"] -> do 
+                    print("kill !")
+                    return()
             ["JOIN_CHATROOM:", roomName] -> do
                 remain <- replicateM 3 $ hGetLine (hdlU user)
                 case fmap words remain of
@@ -220,3 +217,5 @@ runChat user rooms = do
             _ -> do
                 return() >> loop
 
+    broadcast (nameUser user ++ "<-- left.") -- make a final broadcast
+    hClose (hdlU user)

@@ -43,12 +43,12 @@ joinRoom user nameR rooms = do
     case room of
         Nothing -> do
             print("room do not exist "++nameR)
+            print(show $ hdlU user)
             hPutStrLn (hdlU user) ("It is coming")
             newRoom <- newRoom nameR user
             let newMap = Map.insert (idC newRoom) newRoom roomMap
-            print("room map updated")
+            takeMVar rooms --take before put otherwise it is blocking because full
             putMVar rooms newMap
-            print("MVar room updated")
             hPutStr (hdlU user) $
                 "JOINED_CHATROOM: " ++(nameRoom newRoom)++
                 "\nSERVER_IP: 0.0.0.0" ++ 
@@ -123,6 +123,7 @@ runConn (sock, _) chan msgNum rooms = do
                     [["CLIENT_IP:", _], [ "PORT:", _], ["CLIENT_NAME:", name]] -> do
                                 print("JOIN ok")
                                 thisUser <- nUser name msgNum hdl
+                                print(show $ hdlU thisUser)
                                 hPutStrLn (hdlU thisUser) "ready to join!"
                                 joinRoom thisUser roomName rooms
                                 runChat thisUser rooms
@@ -168,5 +169,4 @@ runChat user rooms = do
                     _ -> do
                         print("wrong join for user  "++ (show $ idU user)) >> loop
             _ -> do
-            	return() >> loop
-
+                return() >> loop

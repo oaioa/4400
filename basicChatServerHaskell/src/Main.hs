@@ -88,6 +88,7 @@ messageUser user message idRoom rooms=do
                  
 main :: IO ()
 main = do
+    print("Welcome")
     args <- getArgs
     let port = head args
     sock <- socket AF_INET Stream 0    -- create socket
@@ -109,7 +110,7 @@ type Msg = (Int, String)
 mainLoop :: Socket -> Chan Msg -> Int -> IO ()
 mainLoop sock chan msgNum= do
     conn <- accept sock
-    print("connection accepted : "++(show msgNum))
+    print("|| connection accepted : "++(show msgNum))
     rooms <- newMVar Map.empty
     forkIO (runConn conn chan msgNum rooms)
     mainLoop sock chan $! msgNum + 1
@@ -127,13 +128,13 @@ runConn (sock, _) chan msgNum rooms = do
     -- fork off a thread for reading from the duplicated channel
     reader <- forkIO $ fix $ \loop -> do
         (nextNum, line) <- readChan commLine
-        print("reader !!!")
+        print("|| reader !!!")
         when (msgNum /= nextNum) $  hPutStrLn hdl line
         loop
 
     handle (\(SomeException _) -> return ()) $ fix $ \loop -> do
-        line <- (hGetLine hdl)
-	print("line : " ++ line)
+        line <- hGetLine hdl
+        print("LINE : " ++ line)
         case words line of
             ["KILL_SERVICE"] -> do
                 hClose hdl
@@ -141,14 +142,14 @@ runConn (sock, _) chan msgNum rooms = do
                 remain <- replicateM 3 $ hGetLine hdl
                 case fmap words remain of
                     [["CLIENT_IP:", _], [ "PORT:", _], ["CLIENT_NAME:", name]] -> do
-                                print("JOIN ok")
+                                print("JOIN:  ok")
                                 thisUser <- nUser name msgNum hdl
                                 print(show $ hdlU thisUser)
                                 joinRoom thisUser roomName rooms
                                 runChat thisUser rooms
                                -- loop GET OUT of this loop
                     _ -> do
-                        print("wrong JOIN")
+                        print("JOIN: wrong")
                         loop
             ["HELO",remain] -> do
                 print("HELO \n")
@@ -159,7 +160,6 @@ runConn (sock, _) chan msgNum rooms = do
                 loop
 
             _ -> do 
-                print(line++" from "++show msgNum)
                 loop
     killThread reader                      -- kill after the loop ends
     broadcast ("<-- one left.") -- make a final broadcast
@@ -177,7 +177,7 @@ runChat user rooms = do
 
     handle (\(SomeException _) -> return ()) $ fix $ \loop -> do
         line <-  (hGetLine (hdlU user))
-        print("line : "++line)
+        print("LINE : "++line)
 	case words line of
             ["JOIN_CHATROOM:", roomName] -> do
                 remain <- replicateM 3 $ hGetLine (hdlU user)
@@ -188,7 +188,7 @@ runChat user rooms = do
                                 loop
                                 print("problem ?")
                     _ -> do
-                                print("wrong join for user  "++ (show $ idU user)) >> loop
+                                print("JOIN : wrong for user  "++ (show $ idU user)) >> loop
             ["LEAVE_CHATROOM:", roomRef] -> do
                 remain <- replicateM 2 $ hGetLine (hdlU user)
                 case fmap words remain of
@@ -206,11 +206,11 @@ runChat user rooms = do
                     _ -> do
                             print("wrong disconnect for user  "++ (show $ idU user)) >> loop   
             ["CHAT:", roomRef] -> do
-                print("enter chat")
+                print("'''CHAT'''")
                 remain <- replicateM 4 $ hGetLine (hdlU user)
                 case fmap words remain of
                     [["JOIN_ID:", cId], ["CLIENT_NAME:", name], ("MESSAGE:":msg), []] -> do
-                                print("CHAT ok : " ++ (show msg))
+                                print("CHAT : ok " ++ (show msg))
                                 messageUser user (unwords msg) (read roomRef::Int) rooms
                                 loop
                     _ -> do

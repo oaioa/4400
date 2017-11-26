@@ -66,6 +66,26 @@ joinRoom user nameR rooms = do
                 "\nROOM_REF: " ++(show $ idC room)++
                 "\nJOIN_ID: " ++ (show $ idU user) ++ "\n"
 
+
+
+messageUser::User -> String ->Int -> MVar (Map Int Room)  -> IO ()
+messageUser user message idRoom rooms=do
+    roomsMap <- readMVar rooms
+    let room = Map.lookup idRoom roomsMap
+    case room of
+        Nothing -> do
+            print("room do not exist "++(show idRoom))
+        Just room -> do
+            print("room do exist "++(show idRoom))
+            userMap <- readMVar (users room)
+            let newMap = Map.insert (idU user) user userMap
+            takeMVar (users room)
+            putMVar (users room) newMap
+            hPutStr (hdlU user) $
+                "CHAT: " ++ (show idRoom) ++ 
+                "\nCLIENT_NAME: " ++ (nameUser user) ++ 
+                "\nMESSAGE: " ++ message ++ "\n\n"
+                 
 main :: IO ()
 main = do
     args <- getArgs
@@ -125,7 +145,7 @@ runConn (sock, _) chan msgNum rooms = do
                                 print(show $ hdlU thisUser)
                                 joinRoom thisUser roomName rooms
                                 runChat thisUser rooms
-                                loop
+                               -- loop GET OUT of this loop
                     _ -> do
                         print("wrong JOIN")
                         loop
@@ -184,10 +204,12 @@ runChat user rooms = do
                     _ -> do
                             print("wrong disconnect for user  "++ (show $ idU user)) >> loop   
             ["CHAT:", roomRef] -> do
+                print("enter chat")
                 remain <- replicateM 4 $ hGetLine (hdlU user)
                 case fmap words remain of
                     [["JOIN_ID:", cId], ["CLIENT_NAME:", name], ("MESSAGE:":msg), []] -> do
                                 print("CHAT ok : " ++ (show msg))
+                                messageUser user (unwords msg) (read roomRef::Int) rooms
                                 loop
                     _ -> do
                                 print("wrong chat for user  "++ (show $ idU user)) >> loop

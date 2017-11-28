@@ -6,11 +6,13 @@ import System.IO
 import System.Environment -- getArgs
 import Control.Exception
 import Control.Concurrent
-import Control.Concurrent.MVar
+import Control.Concurrent.STM
+import Control.Concurrent.STM.TChan
+import Control.Concurrent.STM.TVar
+import Control.Monad
 import Control.Monad (when)
 import Control.Monad.Fix (fix)
 import Control.Monad (liftM,replicateM)
--- import Control.Concurrent.STM.TVar --Shared memory locations that support atomic memory transactions
 import Data.Map as Map
 import Data.List
 import Data.Hashable (hash)
@@ -19,13 +21,13 @@ ip =iNADDR_ANY
 
 
 type Msg = (Int, String)
-data User = User {nameUser :: String,idU::Int,hdlU::Handle,channel::Chan Msg}
+data User = User {nameUser :: String,idU::Int,hdlU::Handle,channel::TChan Msg}
 
-data Room = Room {nameRoom :: String, idC :: Int,users :: MVar (Map Int User)}
+data Room = Room {nameRoom :: String, idC :: Int,users :: TVar (Map Int User)}
 
-nUser :: String  ->Int ->Handle->Chan Msg -> IO User
+nUser :: String  ->Int ->Handle->TChan Msg -> IO User
 nUser name idU hdl chan= do
-    chanUser <- newChan
+    chanUser <- newTChanIO
     print("user created "++ name)
     return User { nameUser = name,idU=idU,hdlU=hdl,channel=chanUser}
 
@@ -33,24 +35,20 @@ nUser name idU hdl chan= do
 newRoom :: String -> User -> IO Room
 newRoom name user = do
     let mapUsers = Map.insert (idU user) user Map.empty
-    mapUsersMutable <- newMVar mapUsers
+    mapUsersMutable <- newTVarIO mapUsers
     print("room created "++name)
     return Room {nameRoom = name, idC = (hash name::Int), users = mapUsersMutable}
 
-joinRoom :: User -> String -> MVar (Map Int Room) -> IO ()
+joinRoom :: User -> String -> TVar (Map Int Room) -> IO ()
 joinRoom user nameR rooms = do
-    roomMap <- readMVar rooms
+    roomMap <- readTVarIO rooms
     let room = Map.lookup (hash nameR::Int) roomMap
     case room of
         Nothing -> do
             print("JOIN!! : room do not exist "++nameR)
             newRoom <- newRoom nameR user
             let newMap = Map.insert (idC newRoom) newRoom roomMap
-            takeMVar rooms --take before put otherwise it is blocking because full
-            putMVar rooms newMap
-
-            let newMap = Map.insert (idU user) user Map.empty
-            putMVar (users newRoom) newMap
+            atomically $ writeTVar rooms newMap
 
             hPutStr (hdlU user) $
                 "JOINED_CHATROOM: " ++(nameRoom newRoom)++
@@ -61,12 +59,11 @@ joinRoom user nameR rooms = do
             messageUser user ("HELLO I am "++(nameUser user)) (hash nameR::Int) rooms
         Just room -> do
             print("JOIN : room do exist "++nameR)
-            userMap <- readMVar (users room)
+            userMap <- readTVarIO (users room)
             let newMap = Map.insert (idU user) user userMap
-            takeMVar (users room)
-            putMVar (users room) newMap
-            userMap <- readMVar (users room)
-            print("Users :  ")
+            atomically $ writeTVar (users room) newMap
+            userMap <- readTVarIO (users room)
+            print("Users in join:  ")
             print $ fmap (\u -> nameUser u) (Map.elems userMap)
 
             hPutStr (hdlU user) $
@@ -77,9 +74,9 @@ joinRoom user nameR rooms = do
                 "\nJOIN_ID: " ++ (show $ idU user) ++ "\n"
             messageUser user ("HELLO I am "++(nameUser user)) (idC room) rooms
             
-leaveRoom :: User -> Int -> MVar (Map Int Room) -> IO()
-leaveRoom user idRoom rooms = do
-    roomMap <- readMVar rooms
+leaveRoom :: User -> Int -> TVar (Map Int Room)-> Bool -> IO()
+leaveRoom user idRoom rooms disconnect= do
+    roomMap <- readTVarIO rooms
     let room = Map.lookup idRoom roomMap
     case room of
         Nothing -> do
@@ -88,30 +85,38 @@ leaveRoom user idRoom rooms = do
             print("LEAVE : room do exist ")
             let nameroom = nameRoom room 
             -- map of users not used for now
-            hPutStr (hdlU user) $
+            if not disconnect
+                then hPutStr (hdlU user) $
                 "LEFT_CHATROOM: " ++(show idRoom)++
                 "\nJOIN_ID: " ++ (show $ idU user) ++ "\n"
+                else return()
             messageUser user ("I am leaving : "++(nameUser user)) (idC room) rooms
-            userMap <- readMVar (users room)
+            userMap <- readTVarIO (users room)
             let newuserMap = Map.delete (idU user) userMap
-            takeMVar (users room)  
-            putMVar (users room) newuserMap
+            atomically $  writeTVar  (users room) newuserMap
 
-messageUser::User -> String ->Int -> MVar (Map Int Room)  -> IO ()
+disconnectUser :: User ->  TVar (Map Int Room) -> IO()
+disconnectUser user rooms  = do
+            roomMap <- readTVarIO rooms
+            let userRooms = mapM (\room -> leaveRoom user (idC room) rooms True) (Map.elems roomMap)
+            print ("user disconnected : "++(nameUser user))
+
+messageUser::User -> String ->Int -> TVar (Map Int Room)  -> IO ()
 messageUser user message idRoom rooms=do
-    roomsMap <- readMVar rooms
+    roomsMap <- readTVarIO rooms
     let room = Map.lookup idRoom roomsMap
     case room of
         Nothing -> do
             print("SEND :room do not exist "++(show idRoom))
         Just room -> do
             print("SEND : room do exist "++(show idRoom))
-            userMap <- readMVar (users room)
+            userMap <- readTVarIO (users room)
             let line = "CHAT: " ++ (show idRoom) ++ 
                             "\nCLIENT_NAME: " ++ (nameUser user) ++ 
                             "\nMESSAGE: " ++ message ++ "\n\n"
-
-            mapM (\u -> writeChan (channel u )(idU user,line ) ) (Map.elems userMap) 
+            
+            mapM (\u -> atomically $ writeTChan (channel u )(idU user,line ) ) (Map.elems userMap) 
+            print("USERS in message :")
             mapM (\u -> print $ nameUser u ) (Map.elems userMap)
             return()
 
@@ -124,20 +129,20 @@ main = do
     setSocketOption sock ReuseAddr 1   -- make socket immediately reusable - eases debugging.
     bind sock (SockAddrInet (read port::PortNumber) iNADDR_ANY)   -- listen on TCP port 4242.
     listen sock 2                              -- set a max of 2 queued connections
-    chan <- newChan
+    chan <- newTChanIO
     
-    rooms <- newMVar Map.empty
+    rooms <- newTVarIO Map.empty
 
     --because of memory leak 
     _ <- forkIO $ fix $ \loop -> do
-        (_,_) <- readChan chan
+        (_,_) <- atomically $ readTChan chan
         loop
 
     mainLoop sock chan 0 rooms-- pass it into the loop
     return()
 
 
-mainLoop :: Socket -> Chan Msg -> Int -> MVar (Map Int Room) -> IO ()
+mainLoop :: Socket -> TChan Msg -> Int -> TVar (Map Int Room) -> IO ()
 mainLoop sock chan msgNum rooms = do
     conn <- accept sock
     print("|| connection accepted : "++(show msgNum))
@@ -146,9 +151,9 @@ mainLoop sock chan msgNum rooms = do
 
 
    
-runConn :: (Socket, SockAddr) -> Chan Msg -> Int ->MVar (Map Int Room) ->IO ()
+runConn :: (Socket, SockAddr) -> TChan Msg -> Int ->TVar (Map Int Room) ->IO ()
 runConn (sock, _) chan msgNum rooms = do
-    let broadcast msg = writeChan chan (msgNum, msg)
+    let broadcast msg = atomically $ writeTChan chan (msgNum, msg)
     hdl <- socketToHandle sock ReadWriteMode
     hSetBuffering hdl NoBuffering
    
@@ -182,13 +187,13 @@ runConn (sock, _) chan msgNum rooms = do
                 loop
     --killThread reader                      -- kill after the loop ends
 
-runChat :: User ->MVar (Map Int Room)-> IO ()
+runChat :: User ->TVar (Map Int Room)-> IO ()
 runChat user rooms = do
     -- fork off a thread for reading messages from client channel
-    commLine <- dupChan (channel user)
+    commLine <-atomically $ dupTChan (channel user)
     -- fork off a thread for reading from the duplicated channel
     reader <- forkIO $ fix $ \loop -> do
-        (nextNum, line) <- readChan commLine
+        (nextNum, line) <-atomically $ readTChan commLine
         print("|| chat reader !!!")
         when(((idU user) /= nextNum)) $  hPutStrLn (hdlU user) line
         loop
@@ -215,7 +220,7 @@ runChat user rooms = do
                 case fmap words remain of
                     [["JOIN_ID:", cId], ["CLIENT_NAME:", name]] -> do
                                 print("LEAVE ok")
-                                leaveRoom user (read roomRef::Int) rooms
+                                leaveRoom user (read roomRef::Int) rooms False
                                 loop
                     _ -> do
                                 print("wrong leave for user  "++ (show $ idU user)) >> loop
@@ -224,6 +229,7 @@ runChat user rooms = do
                 case fmap words remain of
                     [["PORT:", _], ["CLIENT_NAME:", name]] -> do
                             print("DISCONNECT ok")
+                            disconnectUser user rooms
                             -- !! leave all the rooms to be implemented
                     _ -> do
                             print("wrong disconnect for user  "++ (show $ idU user)) >> loop   
@@ -233,6 +239,7 @@ runChat user rooms = do
                     [["JOIN_ID:", cId], ["CLIENT_NAME:", name], ("MESSAGE:":msg), []] -> do
                                 print("CHAT : ok " ++ (show msg))
                                 messageUser user (unwords msg) (read roomRef::Int) rooms
+                                print("sent")
                                 loop
                     _ -> do
                                 print("wrong chat for user  "++ (show $ idU user)) >> loop

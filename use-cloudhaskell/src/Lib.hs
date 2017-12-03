@@ -43,6 +43,9 @@ worker :: ( ProcessId  -- The processid of the manager (where we send the result
 worker (manager, workQueue) = do
     us <- getSelfPid              -- get our process identifier
     liftIO $ putStrLn $ "Starting worker: " ++ show us
+    liftIO $ putStrLn $ "manager : " ++ show manager
+    liftIO $ putStrLn $ "workQueue: " ++ show workQueue
+
     go us
   where
     go :: ProcessId -> Process ()
@@ -70,13 +73,15 @@ manager :: Integer    -- The number range we wish to generate work for (there wi
         -> Process Integer
 manager n workers = do
   us <- getSelfPid
-
+  liftIO $ putStrLn $ "Starting manager: " ++ show us++" for " ++show n
   -- first, we create a thread that generates the work tasks in response to workers
   -- requesting work.
   workQueue <- spawnLocal $ do
     -- Return the next bit of work to be done
     forM_ [1 .. n] $ \m -> do
+      liftIO $ putStrLn $ "[Manager] Workers spawned !"
       pid <- expect   -- await a message from a free worker asking for work
+      liftIO $ putStrLn $ "Workers"++(show pid)
       send pid m     -- send them work
 
     -- Once all the work is done tell the workers to terminate. We do this by sending every worker who sends a message

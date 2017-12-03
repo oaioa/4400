@@ -90,7 +90,7 @@ leaveRoom user idRoom rooms disconnect= do
                 "LEFT_CHATROOM: " ++(show idRoom)++
                 "\nJOIN_ID: " ++ (show $ idU user) ++ "\n"
                 else return()
-            messageUser user ("I am leaving : "++(nameUser user)) (idC room) rooms
+            messageUser user ((nameUser user)++" has left chatroom.") (idC room) rooms
             userMap <- readTVarIO (users room)
             let newuserMap = Map.delete (idU user) userMap
             atomically $  writeTVar  (users room) newuserMap
@@ -114,7 +114,7 @@ messageUser user message idRoom rooms=do
             let line = "CHAT: " ++ (show idRoom) ++ 
                             "\nCLIENT_NAME: " ++ (nameUser user) ++ 
                             "\nMESSAGE: " ++ message ++ "\n\n"
-            
+	    hPutStr (hdlU user) line
             mapM (\u -> atomically $ writeTChan (channel u )(idU user,line ) ) (Map.elems userMap) 
             print("USERS in message :")
             mapM (\u -> print $ nameUser u ) (Map.elems userMap)

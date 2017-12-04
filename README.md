@@ -1,12 +1,12 @@
 # 4400
 
-The objective of this project is to make a chat server that respect a certain protocol.
+A repository that contains some school projects.  
+The main objective is to understand the challenges of distributed systems development. 
 
-**It is my first Haskell project.**
+For me one other objective is to learn my first pure functionnal language
 
-I really struggled to understand how Haskell worked and to find an easy tutorial. 
-My code is based on https://wiki.haskell.org/Implement_a_chat_server
+#### basicChatServerHaskell
+"a chat server that implements a given protocol"
 
-I am stuck since a long time at 13 at the test for chat server. 
-The error is  *"Server response is empty: Connection rest by peer"*
-
+#### use-cloudhaskell
+"a REST service system, focussed on the efficient computation of code complexity for a given repository, utilising a set of nodes as appropriate to minimise execution time from submission to result return."

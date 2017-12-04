@@ -26,13 +26,14 @@ import           Control.Monad
 import           Network.Transport.TCP                              (createTransport,
                                                                      defaultTCPParameters)
 import           PrimeFactors
+import           Complexity
 import           System.Environment                                 (getArgs)
 import           System.Exit
 
 -- this is the work we get workers to do. It could be anything we want. To keep things simple, we'll calculate the
 -- number of prime factors for the integer passed.
 doWork :: Integer -> Integer
-doWork = numPrimeFactors
+doWork = getComplexity
 
 -- | worker function.
 -- This is the function that is called to launch a worker. It loops forever, asking for work, reading its message queue
@@ -79,7 +80,6 @@ manager n workers = do
   workQueue <- spawnLocal $ do
     -- Return the next bit of work to be done
     forM_ [1 .. n] $ \m -> do
-      liftIO $ putStrLn $ "[Manager] Workers spawned !"
       pid <- expect   -- await a message from a free worker asking for work
       liftIO $ putStrLn $ "Workers"++(show pid)
       send pid m     -- send them work

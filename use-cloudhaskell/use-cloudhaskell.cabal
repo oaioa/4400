@@ -15,8 +15,12 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
+                    ,../argon/src
   exposed-modules:     Lib
                      , PrimeFactors
+                    , Complexity
+                    ,Argon
+                    
   build-depends:       base >= 4.7 && < 5                     
                      , network-transport-tcp
                      , distributed-process

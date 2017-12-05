@@ -26,14 +26,14 @@ import           Control.Monad
 import           Network.Transport.TCP                              (createTransport,
                                                                      defaultTCPParameters)
 import           PrimeFactors
-import           Complexity
+
 import           System.Environment                                 (getArgs)
 import           System.Exit
 
 -- this is the work we get workers to do. It could be anything we want. To keep things simple, we'll calculate the
 -- number of prime factors for the integer passed.
 doWork :: Integer -> Integer
-doWork = getComplexity
+doWork = (+0)
 
 -- | worker function.
 -- This is the function that is called to launch a worker. It loops forever, asking for work, reading its message queue

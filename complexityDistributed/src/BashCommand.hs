@@ -1,16 +1,12 @@
 module BashCommand
-  (cloneGitRepo, totalCommits, resetMaster, resetToPrevCommit, computeComplex) where
+  (cloneGitRepo, totalCommits, resetMaster, resetToPrevCommit, computeComplexity) where
 
 import           Control.Monad
 import           System.Process
 
 cloneGitRepo :: String -> IO String
 cloneGitRepo repo = do
-<<<<<<< HEAD
   readProcess "rm" ["-rf", "remote"] ""
-=======
-  readProcess "rm" ["-rf", "repo"] ""
->>>>>>> 5c6599eafa0d533b35373eac9328a6a0899ccb9a
   result <- readProcess "git" ["clone", repo, "remote"] ""
   return result
 
@@ -28,24 +24,18 @@ resetMaster = do
 
 resetToPrevCommit :: Integer -> IO String
 resetToPrevCommit num = do
-<<<<<<< HEAD
-  putStrLn "Oh "++(show num)
+  putStrLn $ "Oh "++(show num)
   if (num==1)
         then do 
-                result <- readProcess "git" ["reset", "--hard", "HEAD"] ""
+                result <- readProcess "git" ["-C","remote","reset", "--hard", "HEAD"] ""
                 return result
         else do 
-                result <- readProcess "git" ["reset", "--hard", ("HEAD~" ++ (show (num-1)))] ""
+                result <- readProcess "git" ["-C","remote","reset", "--hard", ("HEAD~" ++ (show (num-1)))] ""
                 return result
-=======
-  if (num==1)
-        then result <- readProcess "git" ["reset", "--hard", "HEAD"] ""
-        else result <- readProcess "git" ["reset", "--hard", ("HEAD~" ++ (show (num-1)))] ""
-    return result
->>>>>>> 5c6599eafa0d533b35373eac9328a6a0899ccb9a
 
-computeComplex :: IO Integer
-computeComplex = do
-  result <- readProcess "./argonScript.sh" [] ""
-  let total = read result
-  return total
+computeComplexity :: IO Integer
+computeComplexity = do
+  r <- readProcess "./c.sh" [] ""
+  putStrLn $ "RESULT : "++r
+  --let complexity = read r
+  return 0

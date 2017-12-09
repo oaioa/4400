@@ -4,38 +4,38 @@ module BashCommand
 import           Control.Monad
 import           System.Process
 
-cloneGitRepo :: String -> IO String
-cloneGitRepo repo = do
-  readProcess "rm" ["-rf", "remote"] ""
-  result <- readProcess "git" ["clone", repo, "remote"] ""
+
+cloneGitRepo :: String -> Int -> IO String
+cloneGitRepo repo worker = do
+  readProcess "rm" ["-rf", "remote"++(show worker)] ""
+  result <- readProcess "git" ["clone", repo, "remote"++(show worker)] ""
   return result
 
-totalCommits :: IO Integer
-totalCommits = do
-  result <- readProcess "git" ["-C","remote","rev-list", "--count", "master"] ""
+totalCommits :: Int -> IO Integer
+totalCommits  worker = do
+  result <- readProcess "git" ["-C","remote"++(show worker),"rev-list", "--count", "master"] ""
   let total = read result
   return total
 
-resetMaster :: IO String
-resetMaster = do
-  result <- readProcess "git" ["-C","remote","checkout", "master"] ""
-  readProcess "git" ["-C","remote","pull"] ""
+resetMaster :: Int -> IO String
+resetMaster  worker = do
+  result <- readProcess "git" ["-C","remote"++(show worker),"checkout", "master"] ""
+  readProcess "git" ["-C","remote"++(show worker),"pull"] ""
   return result
 
-resetToPrevCommit :: Integer -> IO String
-resetToPrevCommit num = do
-  putStrLn $ "Oh "++(show num)
+resetToPrevCommit :: Integer -> Int -> IO String
+resetToPrevCommit num  worker = do
   if (num==1)
         then do 
-                result <- readProcess "git" ["-C","remote","reset", "--hard", "HEAD"] ""
+                result <- readProcess "git" ["-C","remote"++(show worker),"reset", "--hard", "HEAD"] ""
                 return result
         else do 
-                result <- readProcess "git" ["-C","remote","reset", "--hard", ("HEAD~" ++ (show (num-1)))] ""
+                result <- readProcess "git" ["-C","remote"++(show worker),"reset", "--hard", ("HEAD~" ++ (show (num-1)))] ""
                 return result
 
-computeComplexity :: IO Integer
-computeComplexity = do
-  r <- readProcess "./c.sh" [] ""
+computeComplexity :: Int -> IO Integer
+computeComplexity  worker = do
+  r <- readProcess "./argonScript.sh" ["remote"++(show worker)] ""
   putStrLn $ "RESULT : "++r
-  --let complexity = read r
-  return 0
+  let complexity = read r
+  return complexity

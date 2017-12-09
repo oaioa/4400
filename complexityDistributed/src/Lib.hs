@@ -29,39 +29,39 @@ import           BashCommand
 
 import           System.Environment                                 (getArgs)
 import           System.Exit
-
+import           Data.Char
 -- | worker function.
 -- This is the function that is called to launch a worker. It loops forever, asking for work, reading its message queue
 -- and sending the result of runnning numPrimeFactors on the message content (an integer).
 worker :: ( ProcessId  -- The processid of the manager (where we send the results of our work)
          , ProcessId
-        , String) -- the process id of the work queue (where we get our work from)
+         , String)
        -> Process ()
 worker (manager, workQueue,url) = do
     us <- getSelfPid              -- get our process identifier
-    
+    let workerNumber = (digitToInt $ (show us)!!18)*10 + (digitToInt $ (show us)!!19)
     liftIO $ putStrLn $ "Starting worker: " ++ show us
-
-    go us
+    liftIO $ cloneGitRepo url workerNumber
+    go us workerNumber
   where
-    go :: ProcessId -> Process ()
-    go us = do
+    go :: ProcessId -> Int-> Process ()
+    go us workerNumber= do
 
       send workQueue us -- Ask the queue for work. Note that we send out process id so that a message can be sent to us
 
       -- Wait for work to arrive. We will either be sent a message with an integer value to use as input for processing,
       -- or else we will be sent (). If there is work, do it, otherwise terminate
       receiveWait
-        [ match $ \n  -> do
+        [ match $ \(n)  -> do
             liftIO $ putStrLn $ "[Node " ++ (show us) ++ "] given work: " ++ show n
-            liftIO $ resetMaster
+            liftIO $ resetMaster workerNumber
             liftIO $ putStrLn $ "Reset !"
-            liftIO $ resetToPrevCommit n
-            complexity <-liftIO computeComplexity
+            liftIO $ resetToPrevCommit n workerNumber
+            complexity <-liftIO $  computeComplexity workerNumber
             liftIO $ putStrLn $ "The commit "++(show n)++" complexity "++(show complexity)
             liftIO $ putStrLn $ "[Node " ++ (show us) ++ "] finished work."
             send manager complexity
-            go us -- note the recursion this function is called again!
+            go us workerNumber -- note the recursion this function is called again!
         , match $ \ () -> do
             liftIO $ putStrLn $ "Terminating node: " ++ show us
             return ()
@@ -77,15 +77,15 @@ manager url workers = do
   liftIO $ putStrLn $ "Starting manager: " ++ show us
   -- first, we create a thread that generates the work tasks in response to workers
   -- requesting work.
-  output <- liftIO $ cloneGitRepo $ url
+  output <- liftIO $ cloneGitRepo  url 1
   liftIO $ putStrLn $ output
 
-  slaveNumber <- liftIO $ totalCommits
-  liftIO $ putStrLn $ ("Total Commits: " ++ (show slaveNumber))
+  taskNumber <- liftIO $ totalCommits 1
+  liftIO $ putStrLn $ ("Total Commits: " ++ (show taskNumber))
   
   workQueue <- spawnLocal $ do
     -- Return the next bit of work to be done
-    forM_ [1 .. (slaveNumber-1)] $ \m -> do
+    forM_ [1 .. (taskNumber-1)] $ \m -> do
       pid <- expect   -- await a message from a free worker asking for work
       liftIO $ putStrLn $ "Receive from worker : "++(show pid)
       send pid m     -- send them work
@@ -99,11 +99,11 @@ manager url workers = do
 
   -- Next, start worker processes on the given cloud haskell nodes. These will start
   -- asking for work from the workQueue thread immediately.
-  forM_ workers $ \ nid -> spawn nid ($(mkClosure 'worker) (us, workQueue,url))
+  forM_ workers $ \nid -> spawn nid ($(mkClosure 'worker) (us, workQueue,url))
   liftIO $ putStrLn $ "[Manager] Workers spawned"
   -- wait for all the results from the workers and return the sum total. Look at the implementation, whcih is not simply
   -- summing integer values, but instead is expecting results from workers.
-  finalFunction (fromIntegral (slaveNumber-1))
+  finalFunction (fromIntegral (taskNumber-1))
 
 -- note how this function works: initialised with n, the number range we started the program with, it calls itself
 -- recursively, decrementing the integer passed until it finally returns the accumulated value in go:acc. Thus, it will

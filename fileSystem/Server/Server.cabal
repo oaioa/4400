@@ -21,6 +21,7 @@ library
                      , APIClient
   build-depends:       base >= 4.7 && < 5
                      , aeson
+                     , directory
                      , servant
                      , servant-server
                      , servant-client

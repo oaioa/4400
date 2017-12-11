@@ -24,8 +24,8 @@ getREADME :: ClientM ResponseData
 storeMessage :: Message -> ClientM Bool
 searchMessage :: Maybe String -> ClientM [Message]
 performRestCall :: Maybe String -> ClientM ResponseData
-
+getFile :: String -> ClientM File
 -- | The following provides the implementations of these types
 -- Note that the order of the functions must match the endpoints in the type API from UseHaskell.hs
 
-(loadEnvVars :<|> getREADME :<|> storeMessage :<|> searchMessage :<|> performRestCall) = client restAPI
+(loadEnvVars :<|> getREADME :<|> storeMessage :<|> searchMessage :<|> performRestCall:<|>getFile) = client restAPI

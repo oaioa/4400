@@ -40,6 +40,7 @@ blueCode  = setSGRCode [SetConsoleIntensity BoldIntensity , SetColor Foreground 
 resetCode = setSGRCode [Reset]
 
 
+
 -- | output a command line banner
 banner :: IO ()
 banner = do
@@ -48,7 +49,7 @@ banner = do
              cabalCopyright ++" (" ++ cabalAuthor ++ ")" ++ resetCode ++ "\n" ++
              whiteCode ++ "Git Branch: " ++ gitBranch ++ ", Git Revision: " ++ gitRev ++ resetCode ++ "\n"
 
--- | A helper function to make it easier to execute rest calls and report errors if the occur
+--A helper function to make it easier to execute rest calls and report errors if the occur
 reportExceptionOr act b =  b >>= \ b' ->
   case b' of
      Left err -> putStrLn $ "Call failed with error: " ++ show err
@@ -62,6 +63,9 @@ class PrintResponse a where
 
 instance PrintResponse ResponseData where
   resp r = "Response is a single value: " ++ response r
+
+instance PrintResponse File where
+  resp r = "Response is a single value: " ++ filename r ++ content r
 
 instance PrintResponse [Message] where
   resp [] = "No messages."
@@ -86,6 +90,19 @@ doCall f h p = reportExceptionOr (putStrLn . resp) (SC.runClientM f =<< env h p)
 doLoadEnvVars :: Maybe String -> Maybe String -> Maybe String -> IO ()
 doLoadEnvVars s = doCall $ loadEnvVars s
 
+
+doGetFile :: String -> Maybe String -> Maybe String -> IO ()
+doGetFile s h p = do
+                    answer<- ( SC.runClientM (getFile s) =<< env h p )
+                    case answer of
+                        Left error -> putStrLn ("!!!  "++(show error))
+                        Right fileGot -> do
+                                            if (filename fileGot)=="0"
+                                                then putStrLn "no file"
+                                                else do
+                                                    putStrLn "file !"            
+                                                    writeFile (filename fileGot) (show $ content fileGot )
+
 doGetREADME :: Maybe String -> Maybe String -> IO ()
 doGetREADME  = doCall getREADME
 
@@ -96,8 +113,7 @@ doSearchMessage :: String -> Maybe String -> Maybe String -> IO ()
 doSearchMessage s  = doCall $ searchMessage $ Just s
 
 doPerformRestCall :: Maybe String -> Maybe String -> Maybe String -> IO ()
-doPerformRestCall s  =  doCall $ performRestCall s
-
+doPerformRestCall s = doCall (performRestCall s)
 
 -- | The options handling
 
@@ -124,6 +140,12 @@ opts = do
                                                                    <> help "The variable to load."))
                                             <*> serverIpOption
                                             <*> serverPortOption) "Load an environment variable on the remote server." )
+                       <>  command "get-file"
+                                  (withInfo ( doGetFile
+                                            <$> argument str ( metavar "name")
+                                            <*> serverIpOption
+                                            <*> serverPortOption) "Load an environment variable on the remote server." )
+
                        <> command "get-readme"
                                   (withInfo ( doGetREADME
                                           <$> serverIpOption

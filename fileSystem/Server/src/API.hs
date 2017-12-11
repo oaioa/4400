@@ -32,6 +32,12 @@ data Message = Message { name    :: String
 deriving instance FromBSON String  -- we need these as BSON does not provide
 deriving instance ToBSON   String
 
+
+data File = File { filename    :: String
+                 , content :: String
+                       } deriving (Show, Generic, FromJSON, ToJSON, ToBSON, FromBSON)
+
+
 -- | We will also define a simple data type for returning data from a REST call, again with nothing special or
 -- particular in the response, but instead merely as a demonstration.
 
@@ -53,3 +59,5 @@ type API = "load_environment_variables" :> QueryParam "name" String :> Get '[JSO
       :<|> "storeMessage"               :> ReqBody '[JSON] Message  :> Post '[JSON] Bool
       :<|> "searchMessage"              :> QueryParam "name" String :> Get '[JSON] [Message]
       :<|> "performRESTCall"            :> QueryParam "filter" String  :> Get '[JSON] ResponseData
+      :<|> "getMessage" :> ReqBody '[JSON] String :> Get '[JSON] File
+

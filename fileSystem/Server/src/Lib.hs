@@ -66,6 +66,17 @@ app = serve api server
 api :: Proxy API
 api = Proxy
 
+sendFile :: File -> Handler ResponseData
+sendFile f = do
+  let path = "dd/" ++ filename f
+  liftIO $ putStrLn $ "Saving file: "++ path
+  exists <- liftIO $ doesFileExist path
+  if exists
+      then return $ ResponseData "File already exist"
+      else do
+        liftIO $ writeFile path (content f)
+        return $ ResponseData "File writed"
+
 server :: Server API
 server = loadEnvironmentVariable
     :<|> getREADME
@@ -73,6 +84,7 @@ server = loadEnvironmentVariable
     :<|> searchMessage
     :<|> performRESTCall
     :<|> getFile
+    :<|> sendFile
   where
     getFile :: String -> Handler File
     getFile f = do

@@ -97,11 +97,14 @@ doGetFile s h p = do
                     case answer of
                         Left error -> putStrLn ("!!!  "++(show error))
                         Right fileGot -> do
-                                            if (filename fileGot)=="0"
+                                        if (filename fileGot)=="0"
                                                 then putStrLn "no file"
                                                 else do
                                                     putStrLn "file !"            
                                                     writeFile (filename fileGot) (show $ content fileGot )
+
+doSendFile :: String -> String -> Maybe String -> Maybe String -> IO()
+doSendFile filename content = doCall $ sendFile $ File filename content
 
 doGetREADME :: Maybe String -> Maybe String -> IO ()
 doGetREADME  = doCall getREADME
@@ -145,6 +148,14 @@ opts = do
                                             <$> argument str ( metavar "name")
                                             <*> serverIpOption
                                             <*> serverPortOption) "Load an environment variable on the remote server." )
+                       <>  command "send-file"
+                                    (withInfo ( doSendFile
+                                            <$> argument str ( metavar "filename")
+                                            <*> argument str ( metavar "content")
+                                            <*> serverIpOption
+                                            <*> serverPortOption) "Load an environment variable on the remote server." )
+
+
 
                        <> command "get-readme"
                                   (withInfo ( doGetREADME

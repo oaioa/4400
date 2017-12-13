@@ -30,6 +30,11 @@ import           BashCommand
 import           System.Environment                                 (getArgs)
 import           System.Exit
 import           Data.Char
+
+import           System.Console.ANSI
+redCode   = setSGRCode [SetConsoleIntensity BoldIntensity , SetColor Foreground Vivid Red]
+resetCode = setSGRCode [Reset]
+
 -- | worker function.
 -- This is the function that is called to launch a worker. It loops forever, asking for work, reading its message queue
 -- and sending the result of runnning numPrimeFactors on the message content (an integer).
@@ -56,12 +61,18 @@ worker (manager, workQueue,url) = do
             liftIO $ putStrLn $ "[Node " ++ (show us) ++ "] given work: " ++ show n
             liftIO $ resetMaster workerNumber
             liftIO $ putStrLn $ "Reset !"
-            liftIO $ resetToPrevCommit n workerNumber
-            complexity <-liftIO $  computeComplexity workerNumber
-            liftIO $ putStrLn $ "The commit "++(show n)++" complexity "++(show complexity)
-            liftIO $ putStrLn $ "[Node " ++ (show us) ++ "] finished work."
-            send manager complexity
-            go us workerNumber -- note the recursion this function is called again!
+            resultRest <- liftIO $ resetToPrevCommit n workerNumber
+            if (resultRest /=0 )
+                    then do
+                            complexity <-liftIO $  computeComplexity workerNumber
+                            liftIO $ putStrLn $ "The commit "++(show n)++" complexity "++(show complexity)
+                            liftIO $ putStrLn $ "[Node " ++ (show us) ++ "] finished work."
+                            send manager complexity
+                            go us workerNumber -- note the recursion this function is called again!
+                    else do
+                            send manager (0 :: Integer)
+                            go us workerNumber -- note the recursion this function is called again!
+
         , match $ \ () -> do
             liftIO $ putStrLn $ "Terminating node: " ++ show us
             return ()
@@ -122,8 +133,6 @@ rtable :: RemoteTable
 rtable = Lib.__remoteTable initRemoteTable
 
 -- | This is the entrypoint for the program. We deal with program arguments and launch up the cloud haskell code from
--- here.
-someFunc :: IO ()
 someFunc = do
 
 
@@ -135,7 +144,7 @@ someFunc = do
       backend <- initializeBackend host port rtable
       startMaster backend $ \workers -> do
         result <- manager url workers
-        liftIO $ print result
+        liftIO $ putStrLn $ "\n"++redCode++"[[ FINAL result : "++(show result)++" ]]"++resetCode
     ["worker", host, port] -> do
       putStrLn "Starting Node as Worker"
       backend <- initializeBackend host port rtable

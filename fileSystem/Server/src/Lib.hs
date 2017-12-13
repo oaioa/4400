@@ -94,7 +94,7 @@ server = loadEnvironmentVariable
             then do
                 contents <- liftIO $ readFile path
                 liftIO $ putStr contents
-                return $ File path contents
+                return $ File f contents
             else return $ File "0" "File do not exist"
 
 

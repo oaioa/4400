@@ -19,9 +19,15 @@ import qualified Servant.API                        as SC
 import qualified Servant.Client                     as SC
 import           System.Console.ANSI
 import           System.Environment
+
 import           API
 import           APIClient
 
+import Data.Time
+import Data.Cache as Cache
+import System.Clock
+
+import Control.Monad.Reader (liftIO) --magic stuff with monad
 -- | to embed git and cabal details for this build into the executable (just for the fun of it)
 -- The code inside $( ) gets run at compile time. The functions run extract data from project files, both .git files and
 -- the .cabal file.
@@ -82,6 +88,18 @@ instance PrintResponse Bool where
 -- | Command line option handlers, one for each command
 -- These are called from the options parsing and do the actuall work of the program.
 
+cacheFile :: FileCache -> File -> IO ()
+cacheFile c f = do
+                        Cache.insert c (filename f) (f)
+                        putStrLn $ "inserted in cache "++(filename f)
+
+checkCache :: FileCache -> String -> IO (Maybe File)
+checkCache c filename = do
+  res <- Cache.lookup c filename
+  case res of
+    Just cached -> return $ Just cached
+    Nothing -> return $  Nothing
+
 -- let's put all the hard work in a helper...
 doCall f h p = reportExceptionOr (putStrLn . resp) (SC.runClientM f =<< env h p)
 
@@ -91,17 +109,25 @@ doLoadEnvVars :: Maybe String -> Maybe String -> Maybe String -> IO ()
 doLoadEnvVars s = doCall $ loadEnvVars s
 
 
-doGetFile :: String -> Maybe String -> Maybe String -> IO ()
-doGetFile s h p = do
-                    answer<- ( SC.runClientM (getFile s) =<< env h p )
-                    case answer of
-                        Left error -> putStrLn ("!!!  "++(show error))
-                        Right fileGot -> do
-                                        if (filename fileGot)=="0"
-                                                then putStrLn "no file"
-                                                else do
-                                                    putStrLn "file !"            
-                                                    writeFile (filename fileGot) (show $ content fileGot )
+doGetFile :: FileCache -> String -> Maybe String -> Maybe String -> IO ()
+doGetFile cache nameFile h p = do
+                    cached <- liftIO $ checkCache cache nameFile
+                    print cached
+                    (keys cache)
+                    case cached of
+                        Just fileCached -> do
+                                            putStrLn("It is already on Cache !")
+                        Nothing -> do
+                                    answer<- ( SC.runClientM (getFile nameFile) =<< env h p )
+                                    case answer of
+                                        Left error -> putStrLn ("!!!  "++(show error))
+                                        Right fileGot -> do
+                                                        if (filename fileGot)=="0"
+                                                                then putStrLn "no file"
+                                                                else do
+                                                                    putStrLn  $ "file received "++(filename fileGot)            
+                                                                    writeFile (filename fileGot) (show $ content fileGot )
+                                                                    cacheFile cache fileGot
 
 doSendFile :: String -> String -> Maybe String -> Maybe String -> IO()
 doSendFile filename content = doCall $ sendFile $ File filename content
@@ -121,17 +147,22 @@ doPerformRestCall s = doCall (performRestCall s)
 -- | The options handling
 
 -- First we invoke the options on the entry point.
-someFunc :: IO ()
-someFunc = do
+someFunc ::IO ()
+someFunc= do
   banner
-  join $ execParser =<< opts
-
+  c <-newCache Nothing :: IO FileCache
+  recursioParser c
+  --c <-newCache (Just $ TimeSpec 60 0 ) :: IO FileCache
+recursioParser::FileCache -> IO()
+recursioParser c = do
+                        join $ execParser =<< opts c
+                        recursioParser c    
 -- | Defined in the applicative style, opts provides a declaration of the entire command line
 --   parser structure. To add a new command just follow the example of the existing commands. A
 --   new 'doCall' function should be defined for your new command line option, with a type matching the
 --   ordering of the application of arguments in the <$> arg1 <*> arg2 .. <*> argN style below.
-opts :: IO (ParserInfo (IO ()))
-opts = do
+opts :: FileCache ->  IO (ParserInfo (IO ()))
+opts c = do
   progName <- getProgName
 
   return $ info (   helper
@@ -144,7 +175,7 @@ opts = do
                                             <*> serverIpOption
                                             <*> serverPortOption) "Load an environment variable on the remote server." )
                        <>  command "get-file"
-                                  (withInfo ( doGetFile
+                                  (withInfo ( doGetFile c
                                             <$> argument str ( metavar "name")
                                             <*> serverIpOption
                                             <*> serverPortOption) "Load an environment variable on the remote server." )

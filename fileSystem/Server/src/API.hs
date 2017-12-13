@@ -17,7 +17,8 @@ import           Data.Bson.Generic
 import           GHC.Generics
 import           Servant
 
-
+import Data.Time
+import Data.Cache
 -- Note that in this version of the project, I have moved the REST API into a shared library called use-haskell-api
 -- This library is imported here in order that the HackageAPI type is available to create the REST service of that
 -- type. Note that there is no advantage in doing this if you are only building a servant REST service, but if you are
@@ -32,10 +33,16 @@ data Message = Message { name    :: String
 deriving instance FromBSON String  -- we need these as BSON does not provide
 deriving instance ToBSON   String
 
+data CacheResponse = InDate | OutDate 
+  deriving(Generic)
+instance ToJSON CacheResponse
+instance FromJSON CacheResponse
 
 data File = File { filename    :: String
                  , content :: String
                        } deriving (Show, Generic, FromJSON, ToJSON, ToBSON, FromBSON)
+
+type FileCache = Cache String File
 
 
 -- | We will also define a simple data type for returning data from a REST call, again with nothing special or

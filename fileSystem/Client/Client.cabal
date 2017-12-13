@@ -20,6 +20,10 @@ library
                      , APIClient
   build-depends:       base >= 4.7 && < 5
                      , servant
+                     , mtl
+                     , cache
+                     , clock
+                     , time
                      , bson-generic  
                      , servant-client  
                      , servant-server 
@@ -31,6 +35,7 @@ library
                      , Cabal
                      , ansi-terminal
                      , git-embed
+
   default-language:    Haskell2010
 
 executable Client-exe

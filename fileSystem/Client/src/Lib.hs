@@ -23,6 +23,9 @@ import           System.Environment
 import           API
 import           APIClient
 
+import APICache
+import APICacheClient
+
 import Data.Time
 import Data.Cache as Cache
 import System.Clock
@@ -87,18 +90,6 @@ instance PrintResponse Bool where
 
 -- | Command line option handlers, one for each command
 -- These are called from the options parsing and do the actuall work of the program.
-
-cacheFile :: FileCache -> File -> IO ()
-cacheFile c f = do
-                        Cache.insert c (filename f) (f)
-                        putStrLn $ "inserted in cache "++(filename f)
-
-checkCache :: FileCache -> String -> IO (Maybe File)
-checkCache c filename = do
-  res <- Cache.lookup c filename
-  case res of
-    Just cached -> return $ Just cached
-    Nothing -> return $  Nothing
 
 -- let's put all the hard work in a helper...
 doCall f h p = reportExceptionOr (putStrLn . resp) (SC.runClientM f =<< env h p)
